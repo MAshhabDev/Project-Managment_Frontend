@@ -53,17 +53,14 @@ export default function LoginPage() {
     },
   });
 
-  // ফর্ম সাবমিশন
   const onSubmit = (data: LoginFormValues) => {
     loginMutation.mutate(data, {
       onSuccess: () => {
-        // ড্যাশবোর্ডে রিডাইরেক্ট
         router.push("/dashboard");
       },
     });
   };
 
-  // 🌟 ১-ক্লিক ডেমো লগইন হ্যান্ডলার (Mandatory Assignment Requirement)
   const handleDemoLogin = (email: string, pass: string, targetPath: string) => {
     setValue("email", email);
     setValue("password", pass);
@@ -79,12 +76,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 lg:p-8 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-hidden">
-      {/* ব্যাকগ্রাউন্ড গ্লো ইফেক্ট */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 size-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 size-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center z-10">
-        {/* বাম পাশ: SaaS ফিচার শোকেস ও ব্র্যান্ডিং */}
         <div className="hidden lg:flex flex-col justify-between p-8 space-y-8">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-semibold tracking-wide">
@@ -135,7 +130,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* ডান পাশ: কার্ড লগইন ফর্ম */}
         <Card className="w-full shadow-2xl border-border/80 backdrop-blur-xl">
           <CardHeader className="space-y-1 pb-4">
             <div className="flex items-center justify-between">
@@ -151,7 +145,6 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* 🌟 ১-ক্লিক ডেমো লগইন বাটন গ্রুপ (Mandatory Requirement) */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -224,7 +217,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* ইমেইল ও পাসওয়ার্ড ফর্ম */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Email Field */}
               <div className="space-y-1.5">
