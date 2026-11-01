@@ -17,6 +17,7 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react";
+import { TaskModal } from "@/components/modules/kanban/task-modal";
 
 export default function ProjectKanbanPage({
   params,
@@ -37,15 +38,17 @@ export default function ProjectKanbanPage({
 
   const filteredColumns = rawColumns.map((col) => ({
     ...col,
-    tasks: (col.tasks || []).filter((task) =>
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    tasks: (col.tasks || []).filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (task.description &&
+          task.description.toLowerCase().includes(searchTerm.toLowerCase())),
     ),
   }));
 
   const totalTasks = rawColumns.reduce(
     (acc, col) => acc + (col.tasks?.length || 0),
-    0
+    0,
   );
 
   if (isLoading) {
@@ -72,9 +75,10 @@ export default function ProjectKanbanPage({
         </div>
         <h2 className="text-xl font-bold font-heading">Project Not Found</h2>
         <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-          The project you are looking for does not exist or you do not have permission to view it.
+          The project you are looking for does not exist or you do not have
+          permission to view it.
         </p>
-        <Button  className="mt-4" size="sm">
+        <Button className="mt-4" size="sm">
           <Link href="/dashboard">
             <ArrowLeft className="mr-2 size-4" /> Back to Dashboard
           </Link>
@@ -150,6 +154,9 @@ export default function ProjectKanbanPage({
           />
         ))}
       </div>
+
+      {/* Task Details & Discussion Modal */}
+      <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
     </div>
   );
 }
