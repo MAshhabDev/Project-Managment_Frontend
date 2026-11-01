@@ -29,7 +29,6 @@ export default function MemberDashboardPage() {
   const { data: projectsData, isLoading } = useProjectsQuery();
   const projects = projectsData?.data || [];
 
-  // মেম্বারের মোট টাস্ক ও কমপ্লিটেড টাস্ক ক্যালকুলেশন
   let totalTasks = 0;
   let completedTasks = 0;
   let inProgressTasks = 0;
