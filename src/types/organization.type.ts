@@ -29,6 +29,7 @@ export interface IOrganization {
     imageUrl?: string;
   };
   members?: IOrganizationMember[];
+  teams?: ITeam[];
 }
 
 export interface ICreateOrganizationPayload {
