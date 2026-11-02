@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import { TaskModal } from "@/components/modules/kanban/task-modal";
 
+import { CreateTaskModal } from "@/components/modules/kanban/create-task-modal";
+import { Plus } from "lucide-react";
+
 export default function ProjectKanbanPage({
   params,
 }: {
@@ -35,6 +38,11 @@ export default function ProjectKanbanPage({
 
   const mainBoard = project?.boards?.[0];
   const rawColumns = mainBoard?.columns || [];
+
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [defaultColumnId, setDefaultColumnId] = useState<string | undefined>(
+    undefined,
+  );
 
   const filteredColumns = rawColumns.map((col) => ({
     ...col,
@@ -137,8 +145,21 @@ export default function ProjectKanbanPage({
             />
           </div>
 
+          <Button
+            size="sm"
+            onClick={() => {
+              setDefaultColumnId(undefined);
+              setIsCreateTaskOpen(true);
+            }}
+            className="rounded-xl text-xs gap-1 shadow-sm shrink-0"
+          >
+            <Plus className="size-3.5" />
+            New Task
+          </Button>
+
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-border bg-muted/40 shrink-0">
             <Sparkles className="size-3.5 text-primary" />
+
             <span>{totalTasks} Total Tasks</span>
           </div>
         </div>
@@ -151,12 +172,29 @@ export default function ProjectKanbanPage({
             column={column}
             allColumns={rawColumns}
             onTaskClick={(task) => setSelectedTask(task)}
+            onAddTaskClick={(colId) => {
+              setDefaultColumnId(colId);
+              setIsCreateTaskOpen(true);
+            }}
           />
         ))}
       </div>
 
       {/* Task Details & Discussion Modal */}
       <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
+
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        isOpen={isCreateTaskOpen}
+        onClose={() => {
+          setIsCreateTaskOpen(false);
+          setDefaultColumnId(undefined);
+        }}
+        projectId={projectId}
+        columns={rawColumns}
+        defaultColumnId={defaultColumnId}
+        organizationId={project.organizationId}
+      />
     </div>
   );
 }
