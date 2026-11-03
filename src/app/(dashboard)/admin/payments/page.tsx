@@ -39,7 +39,6 @@ export default function AdminPaymentsPage() {
 
   const refundMutation = useRefundPaymentMutation();
 
-  // Refund Modal State
   const [refundTarget, setRefundTarget] = useState<IPayment | null>(null);
   const [refundAmount, setRefundAmount] = useState<number>(0);
   const [refundReason, setRefundReason] = useState("");
@@ -152,7 +151,6 @@ export default function AdminPaymentsPage() {
         </div>
       </div>
 
-      {/* Organization Switcher */}
       {organizations.length > 0 && (
         <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
           <span className="text-muted-foreground flex items-center gap-1 font-semibold text-xs mr-1 shrink-0">
@@ -174,7 +172,6 @@ export default function AdminPaymentsPage() {
         </div>
       )}
 
-      {/* Transactions Table */}
       <div className="rounded-2xl border border-border/70 bg-card overflow-hidden shadow-xs">
         {isLoadingOrgs || isLoadingPayments ? (
           <div className="p-8 space-y-4">
@@ -280,7 +277,6 @@ export default function AdminPaymentsPage() {
         )}
       </div>
 
-      {/* Modal: Process Refund Modal */}
       {refundTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
           <div
