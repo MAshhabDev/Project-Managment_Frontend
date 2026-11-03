@@ -16,9 +16,14 @@ import {
   KanbanSquare,
   Building2,
 } from "lucide-react";
+import { BkashCheckoutModal } from "@/components/modules/bkash-checkout-modal";
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<{
+    name: string;
+    amount: number;
+  } | null>(null);
 
   const plans = [
     {
@@ -100,12 +105,10 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
-      {/* Public Navbar */}
       <PublicNavbar />
 
       <main className="flex-1 py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-          {/* Header Title & Billing Switcher */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
               <Sparkles className="size-3.5" />
@@ -120,7 +123,6 @@ export default function PricingPage() {
               gateway.
             </p>
 
-            {/* Monthly vs Annual Toggle */}
             <div className="pt-4 flex items-center justify-center gap-3 text-xs font-semibold">
               <span
                 className={
@@ -159,7 +161,6 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* Pricing Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {plans.map((plan) => {
               const currentPrice = isAnnual
@@ -237,16 +238,32 @@ export default function PricingPage() {
 
                   {/* CTA Button */}
                   <div className="pt-8">
-                    <Link href={plan.ctaLink}>
+                    {plan.priceMonthly > 0 ? (
                       <Button
+                        onClick={() =>
+                          setSelectedPlanForPayment({
+                            name: plan.name,
+                            amount: currentPrice,
+                          })
+                        }
                         className="w-full rounded-xl text-xs font-semibold gap-1.5 shadow-sm"
                         variant={plan.popular ? "default" : "outline"}
                       >
-                        {plan.popular && <CreditCard className="size-3.5" />}
+                        <CreditCard className="size-3.5" />
                         <span>{plan.ctaText}</span>
                         <ArrowRight className="size-3.5" />
                       </Button>
-                    </Link>
+                    ) : (
+                      <Link href={plan.ctaLink}>
+                        <Button
+                          className="w-full rounded-xl text-xs font-semibold gap-1.5 shadow-sm"
+                          variant="outline"
+                        >
+                          <span>{plan.ctaText}</span>
+                          <ArrowRight className="size-3.5" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               );
@@ -306,6 +323,15 @@ export default function PricingPage() {
             </div>
           </div>
         </div>
+
+        {selectedPlanForPayment && (
+          <BkashCheckoutModal
+            isOpen={!!selectedPlanForPayment}
+            onClose={() => setSelectedPlanForPayment(null)}
+            planName={selectedPlanForPayment.name}
+            amount={selectedPlanForPayment.amount}
+          />
+        )}
       </main>
 
       {/* Public Footer */}
