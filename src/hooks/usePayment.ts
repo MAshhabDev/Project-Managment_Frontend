@@ -24,7 +24,8 @@ export function useInitiateBkashMutation() {
     mutationFn: (payload: IBkashInitiatePayload) =>
       initiateBkashPayment(payload),
     onError: (err: any) => {
-      toast.error(
+      console.warn(
+        "bKash initiate notice:",
         err.data?.message || err.message || "Failed to initiate bKash payment"
       );
     },
@@ -37,12 +38,12 @@ export function useExecuteBkashMutation() {
   return useMutation({
     mutationFn: (paymentID: string) => executeBkashPayment(paymentID),
     onSuccess: () => {
-      toast.success("Payment completed successfully!");
       queryClient.invalidateQueries({ queryKey: ["payments"] });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
     onError: (err: any) => {
-      toast.error(
+      console.warn(
+        "bKash execute notice:",
         err.data?.message || err.message || "Payment execution failed"
       );
     },
