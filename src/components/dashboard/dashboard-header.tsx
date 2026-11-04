@@ -4,11 +4,11 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { IUser, Role } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Menu, Sun, Moon, LogOut, Crown, Briefcase, User } from "lucide-react";
+import { Menu, Sun, Moon, LogOut, User } from "lucide-react";
 import { toast } from "sonner";
 
 interface IDashboardHeaderProps {
-  user?: IUser;
+  user?: IUser | null;
   onMenuToggle: () => void;
 }
 

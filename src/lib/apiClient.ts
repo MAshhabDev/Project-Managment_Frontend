@@ -11,17 +11,17 @@ const apiClient = ofetch.create({
     Accept: "application/json",
   },
   async onResponseError({ response }) {
-    // 401 বা guest ইউজার যখন পেজে প্রথম আসে তখন এটি স্বাভাবিক, কনসোলে এরর স্প্যাম বন্ধ রাখা হলো
+    // Expected client / auth rejections are handled by UI components & toast notifications
     const msg = String(response._data?.message || "").toLowerCase();
     if (
       response.status === 401 ||
+      response.status === 403 ||
       msg.includes("not logged in") ||
       msg.includes("unauthorized") ||
       msg.includes("jwt")
     ) {
       return;
     }
-    console.error("API Error Response:", response._data);
   },
 });
 

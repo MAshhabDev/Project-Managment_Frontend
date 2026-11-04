@@ -30,8 +30,18 @@ export function verifyEmailOtp(payload: IVerifyEmailPayload) {
   );
 }
 
-export function getMe() {
-  return apiClient<ApiResponse<IUser>>("/auth/me");
+export async function getMe(): Promise<ApiResponse<IUser | null>> {
+  try {
+    return await apiClient<ApiResponse<IUser>>("/auth/me");
+  } catch {
+    // গেস্ট ভিজিটর লগইন না থাকলে এরর থ্রো না করে ক্লিনলি null রিটার্ন করবে
+    return {
+      statusCode: 200,
+      success: true,
+      message: "Unauthenticated guest",
+      data: null,
+    };
+  }
 }
 
 export function googleLogin(payload: { idToken: string }) {
