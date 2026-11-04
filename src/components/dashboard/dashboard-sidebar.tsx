@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Role } from "@/types";
 import { adminRoutes, managerRoutes, memberRoutes } from "@/routes";
-import { KanbanSquare, Sparkles } from "lucide-react";
+import { KanbanSquare, Sparkles, Globe } from "lucide-react";
 
 interface IDashboardSidebarProps {
   role: Role;
@@ -41,19 +41,28 @@ export function DashboardSidebar({
         }`}
       >
         <div>
-          <div className="h-16 flex items-center gap-2.5 px-6 border-b border-border/70">
-            <div className="size-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20">
+          {/* Top Logo / Home Link */}
+          <Link
+            href="/"
+            onClick={onClose}
+            className="h-16 flex items-center gap-2.5 px-6 border-b border-border/70 hover:bg-muted/40 transition-colors group"
+            title="Click to visit Home Page"
+          >
+            <div className="size-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
               <KanbanSquare className="size-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-heading text-lg font-bold tracking-tight">
-                PulseFlow
+              <span className="font-heading text-lg font-bold tracking-tight flex items-center gap-1.5">
+                TaskFlow
+                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/80">
+                  Home
+                </span>
               </span>
               <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
                 {role} Workspace
               </span>
             </div>
-          </div>
+          </Link>
 
           <nav className="p-4 space-y-6 overflow-y-auto">
             {routes.map((group, idx) => (
@@ -89,8 +98,18 @@ export function DashboardSidebar({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-border/70">
-          <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 flex items-center gap-3">
+        {/* Bottom Actions */}
+        <div className="p-4 border-t border-border/70 space-y-2.5">
+          <Link
+            href="/"
+            onClick={onClose}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-border/80 bg-background/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+          >
+            <Globe className="size-3.5 text-primary" />
+            <span>Go to Home Page</span>
+          </Link>
+
+          <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 flex items-center gap-3">
             <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Sparkles className="size-4" />
             </div>

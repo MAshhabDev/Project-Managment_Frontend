@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { IUser, Role } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Menu, Sun, Moon, LogOut, User } from "lucide-react";
+import { Menu, Sun, Moon, LogOut, User, Globe } from "lucide-react";
 import { toast } from "sonner";
 
 interface IDashboardHeaderProps {
@@ -52,17 +53,30 @@ export function DashboardHeader({ user, onMenuToggle }: IDashboardHeaderProps) {
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Back to Home Page link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/80 bg-background/80 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all shadow-xs"
+          title="Go back to Home Page"
+        >
+          <Globe className="size-3.5 text-primary" />
+          <span className="hidden sm:inline">Home Page</span>
+        </Link>
+
+        {/* Dark/Light mode theme toggle */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="size-9 p-0 rounded-xl"
+          title="Toggle color theme"
         >
           <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         </Button>
 
+        {/* User Identity pill */}
         <div className="flex items-center gap-2.5 pl-2 border-l border-border/60">
           <div className="size-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs border border-primary/20">
             {user?.name ? (
@@ -86,6 +100,7 @@ export function DashboardHeader({ user, onMenuToggle }: IDashboardHeaderProps) {
           </span>
         </div>
 
+        {/* Logout action */}
         <Button
           variant="destructive"
           size="sm"

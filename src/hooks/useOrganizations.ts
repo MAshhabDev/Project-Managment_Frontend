@@ -31,8 +31,10 @@ export function useCreateOrgMutation() {
   return useMutation({
     mutationFn: createOrganization,
     onSuccess: () => {
-      toast.success("Organization created successfully!");
+      toast.success("Organization created successfully! You are now an Organization Manager.");
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      queryClient.refetchQueries({ queryKey: ["auth", "me"] });
     },
     onError: (err: any) => {
       toast.error(err.data?.message || err.message || "Failed to create organization");
