@@ -5,6 +5,7 @@ import {
   getMyOrganizations,
   getOrganizationById,
   inviteMember,
+  refreshToken,
 } from "@/api";
 import { IAddTeamMemberPayload, IInviteMemberPayload } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,8 +31,18 @@ export function useCreateOrgMutation() {
 
   return useMutation({
     mutationFn: createOrganization,
-    onSuccess: () => {
-      toast.success("Organization created successfully! You are now an Organization Manager.");
+    onSuccess: async () => {
+      // Re-issue a fresh JWT access token containing the updated MANAGER role
+      try {
+        const refreshRes = await refreshToken();
+        if (typeof window !== "undefined" && refreshRes.data?.accessToken) {
+          localStorage.setItem("accessToken", refreshRes.data.accessToken);
+          document.cookie = `accessToken=${refreshRes.data.accessToken}; path=/; max-age=86400; SameSite=Lax`;
+        }
+      } catch {
+        // Fallback gracefully
+      }
+      toast.success("Organization created successfully! You are now an Organization Manager 🎉");
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       queryClient.refetchQueries({ queryKey: ["auth", "me"] });

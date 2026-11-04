@@ -20,12 +20,19 @@ export function useCreateProjectMutation() {
 
   return useMutation({
     mutationFn: createProject,
-    onSuccess: (res) => {
+    onSuccess: () => {
       toast.success("Project created with Kanban Board successfully!");
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Failed to create project");
+      const msg = err.data?.message || err.message || "";
+      if (msg.includes("Forbidden") || err.status === 403) {
+        toast.error(
+          "Permission Denied: Only the Organization Owner or Manager can create projects in this workspace.",
+        );
+      } else {
+        toast.error(msg || "Failed to create project");
+      }
     },
   });
 }
