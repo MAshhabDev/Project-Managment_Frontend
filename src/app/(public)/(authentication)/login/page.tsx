@@ -6,31 +6,23 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { motion } from "framer-motion";
 import { useLoginMutation } from "@/hooks";
 import { LoginSchema } from "@/validation/auth.validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Crown,
-  Briefcase,
-  User,
+  KanbanSquare,
   Mail,
   Lock,
   Eye,
   EyeOff,
   ArrowRight,
-  CheckCircle2,
-  Sparkles,
-  Loader2,
-  KanbanSquare,
+  Shield,
+  Briefcase,
+  User,
+  Zap,
 } from "lucide-react";
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
@@ -75,245 +67,193 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 lg:p-8 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 size-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 size-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 bg-background relative overflow-hidden antialiased">
+      {/* Subtle ambient lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-gradient-to-tr from-primary/15 via-blue-500/10 to-transparent blur-3xl pointer-events-none rounded-full" />
 
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center z-10">
-        <div className="hidden lg:flex flex-col justify-between p-8 space-y-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-semibold tracking-wide">
-              <Sparkles className="size-3.5" />
-              <span>Project Management SaaS v2.0</span>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="w-full max-w-[440px] space-y-6 relative z-10"
+      >
+        {/* Brand Header */}
+        <div className="text-center space-y-2">
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <div className="size-10 rounded-2xl bg-gradient-to-tr from-primary to-primary/60 text-primary-foreground flex items-center justify-center shadow-md shadow-primary/25 group-hover:scale-105 transition-transform">
+              <KanbanSquare className="size-5" />
             </div>
-
-            <div className="flex items-center gap-2.5">
-              <div className="size-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30">
-                <KanbanSquare className="size-6" />
-              </div>
-              <span className="text-3xl font-bold font-heading tracking-tight">
-                PulseFlow
-              </span>
-            </div>
-
-            <h1 className="text-4xl font-extrabold font-heading tracking-tight leading-tight">
-              Ship projects faster with agile Kanban workflows.
-            </h1>
-            <p className="text-muted-foreground text-base leading-relaxed">
-              Empower your teams with real-time task tracking, role-based
-              collaboration, and automated bKash subscription billing.
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            {[
-              "Interactive Drag-and-Drop Kanban Boards",
-              "Granular 3-Tier Roles: Admin, Manager & Member",
-              "Automated Team Activity Logs & Comments",
-              "Integrated bKash Payment Gateway",
-            ].map((feature, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm font-medium">
-                <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 rounded-xl border border-border/60 bg-card/60 backdrop-blur-md">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              &quot;PulseFlow transformed our sprint delivery speed by 40%. The
-              cleanest Kanban dashboard we have ever used.&quot;
-            </p>
-            <p className="text-xs font-semibold mt-2 text-foreground">
-              — Product Lead @ AgileTech
-            </p>
-          </div>
+            <span className="font-heading font-black text-2xl tracking-tight text-foreground">
+              TaskFlow
+            </span>
+          </Link>
+          <h1 className="text-xl font-bold font-heading text-foreground pt-1">
+            Sign in to your account
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Welcome back! Choose a 1-click demo role or enter your credentials.
+          </p>
         </div>
 
-        <Card className="w-full shadow-2xl border-border/80 backdrop-blur-xl">
-          <CardHeader className="space-y-1 pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-              <div className="lg:hidden flex items-center gap-1.5 font-bold font-heading text-primary">
-                <KanbanSquare className="size-5" />
-                <span>PulseFlow</span>
-              </div>
-            </div>
-            <CardDescription>
-              Enter your credentials or use 1-click demo login below
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <Sparkles className="size-3 text-primary" /> Quick Demo Access
-                </span>
-                <span className="text-[10px] text-muted-foreground/80 bg-muted px-2 py-0.5 rounded-full">
-                  1-Click Instant Login
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                {/* Admin Demo Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={loginMutation.isPending}
-                  onClick={() =>
-                    handleDemoLogin("admin@gmail.com", "admin@12345", "/admin")
-                  }
-                  className="flex flex-col items-center justify-center h-auto py-2.5 px-2 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all group"
-                >
-                  <Crown className="size-4 text-purple-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-bold">Admin</span>
-                  <span className="text-[10px] text-muted-foreground">Super</span>
-                </Button>
-
-                {/* Manager Demo Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={loginMutation.isPending}
-                  onClick={() =>
-                    handleDemoLogin("manager@gmail.com", "manager@12345", "/manager")
-                  }
-                  className="flex flex-col items-center justify-center h-auto py-2.5 px-2 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group"
-                >
-                  <Briefcase className="size-4 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-bold">Manager</span>
-                  <span className="text-[10px] text-muted-foreground">Lead</span>
-                </Button>
-
-                {/* Member Demo Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={loginMutation.isPending}
-                  onClick={() =>
-                    handleDemoLogin("member@gmail.com", "member@12345", "/dashboard")
-                  }
-                  className="flex flex-col items-center justify-center h-auto py-2.5 px-2 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group"
-                >
-                  <User className="size-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-bold">Member</span>
-                  <span className="text-[10px] text-muted-foreground">User</span>
-                </Button>
-              </div>
+        {/* Classy Card Container */}
+        <div className="p-6 sm:p-8 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-2xl shadow-xl space-y-6">
+          {/* 1-Click Fast Pass Demo Selector */}
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+              <span className="flex items-center gap-1 text-primary">
+                <Zap className="size-3 text-amber-500" />
+                1-Click Demo Fast-Pass
+              </span>
+              <span className="text-[10px] text-muted-foreground/80">Click to enter</span>
             </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border/80" />
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase">
-                <span className="bg-card px-2 text-muted-foreground tracking-wider font-semibold">
-                  Or continue with email
-                </span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Email Field */}
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs">
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    className="pl-9"
-                    {...register("email")}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-xs text-destructive font-medium">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password Field */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs">
-                    Password
-                  </Label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs text-primary hover:underline font-medium"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="pl-9 pr-9"
-                    {...register("password")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-xs text-destructive font-medium">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
+            <div className="grid grid-cols-3 gap-2">
+              {/* Admin Demo Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  handleDemoLogin("admin@gmail.com", "admin@12345", "/admin")
+                }
                 disabled={loginMutation.isPending}
-                className="w-full font-semibold shadow-md shadow-primary/20"
+                className="p-2.5 rounded-2xl border border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/15 hover:border-purple-500/50 text-left transition-all group disabled:opacity-50"
               >
-                {loginMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight className="ml-2 size-4" />
-                  </>
-                )}
-              </Button>
-            </form>
+                <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+                  <Shield className="size-3.5" />
+                  <span className="text-[11px] font-bold">Admin</span>
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-0.5 truncate">
+                  Full KPIs & Audit
+                </p>
+              </button>
 
-            {/* Footer Sign up link */}
-            <div className="text-center text-xs text-muted-foreground pt-1">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="text-primary font-semibold hover:underline"
+              {/* Manager Demo Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  handleDemoLogin("manager@gmail.com", "manager@12345", "/manager")
+                }
+                disabled={loginMutation.isPending}
+                className="p-2.5 rounded-2xl border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/15 hover:border-blue-500/50 text-left transition-all group disabled:opacity-50"
               >
-                Create an account
-              </Link>
+                <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                  <Briefcase className="size-3.5" />
+                  <span className="text-[11px] font-bold">Manager</span>
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-0.5 truncate">
+                  Orgs & Squads
+                </p>
+              </button>
+
+              {/* Member Demo Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  handleDemoLogin("member@gmail.com", "member@12345", "/dashboard")
+                }
+                disabled={loginMutation.isPending}
+                className="p-2.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/15 hover:border-emerald-500/50 text-left transition-all group disabled:opacity-50"
+              >
+                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                  <User className="size-3.5" />
+                  <span className="text-[11px] font-bold">Member</span>
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-0.5 truncate">
+                  Sprint Kanban
+                </p>
+              </button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative flex items-center justify-center">
+            <div className="w-full border-t border-border/60" />
+            <span className="absolute bg-card px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              or continue with email
+            </span>
+          </div>
+
+          {/* Sign In Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Email address</Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="name@example.com"
+                  {...register("email")}
+                  className="pl-10 h-10 text-xs rounded-xl bg-background/50 border-border/70 focus:border-primary"
+                />
+              </div>
+              {errors.email && (
+                <p className="text-[11px] text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Password</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-[11px] text-primary hover:underline font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  {...register("password")}
+                  className="pl-10 pr-10 h-10 text-xs rounded-xl bg-background/50 border-border/70 focus:border-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-[11px] text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={loginMutation.isPending}
+              className="w-full h-10 rounded-xl text-xs font-semibold shadow-md shadow-primary/20 gap-1.5 transition-all"
+            >
+              <span>{loginMutation.isPending ? "Signing in..." : "Sign In"}</span>
+              <ArrowRight className="size-3.5" />
+            </Button>
+          </form>
+        </div>
+
+        {/* Footer Link */}
+        <p className="text-center text-xs text-muted-foreground">
+          Don&apos;t have an account yet?{" "}
+          <Link
+            href="/register"
+            className="text-primary font-semibold hover:underline"
+          >
+            Create an account for free
+          </Link>
+        </p>
+      </motion.div>
     </div>
   );
 }

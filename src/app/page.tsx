@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
 import { PublicNavbar } from "@/components/layout/public-navbar";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { Button } from "@/components/ui/button";
@@ -15,51 +16,105 @@ import {
   Zap,
   Building2,
   Clock,
-  Layers,
   MessageSquare,
   Lock,
+  ChevronRight,
+  Plus,
 } from "lucide-react";
+
+// Smooth spring animation variants
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 80,
+      damping: 18,
+    },
+  },
+};
+
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
+    <div className="min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden">
       {/* Sticky Glass Navbar */}
       <PublicNavbar />
 
       <main className="flex-1">
         {/* 1. Hero Section */}
-        <section className="relative overflow-hidden py-20 lg:py-32">
-          {/* Subtle Ambient Background Gradients */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-primary/20 via-purple-500/10 to-transparent blur-3xl pointer-events-none rounded-full" />
+        <section className="relative overflow-hidden py-20 lg:py-28">
+          {/* Ambient Glow Orbs */}
+          <motion.div
+            animate={{
+              scale: [1, 1.15, 1],
+              opacity: [0.15, 0.25, 0.15],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-tr from-primary/30 via-blue-500/15 to-transparent blur-3xl pointer-events-none rounded-full"
+          />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-            {/* Announcement Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-semibold shadow-xs">
-              <Sparkles className="size-3.5" />
-              <span>Next-Gen Agile Delivery Platform</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                Domain 8
-              </span>
-            </div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6"
+          >
+            {/* Announcement Badge */}
+            <motion.div variants={fadeInUp} className="inline-block">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-semibold shadow-xs">
+                <Sparkles className="size-3.5" />
+                <span>Next-Gen Agile Project Tracker</span>
+                <ChevronRight className="size-3 text-primary/60" />
+              </div>
+            </motion.div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black font-heading tracking-tight text-foreground max-w-4xl mx-auto leading-[1.1]">
-              Supercharge Sprint Velocity with{" "}
-              <span className="bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Agile Kanban
+            {/* Headline */}
+            <motion.h1
+              variants={fadeInUp}
+              className="text-4xl sm:text-6xl lg:text-7xl font-black font-heading tracking-tight text-foreground max-w-4xl mx-auto leading-[1.08]"
+            >
+              Work together. <br className="hidden sm:inline" />
+              <span className="bg-gradient-to-r from-primary via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Ship faster.
               </span>
-            </h1>
+            </motion.h1>
 
             {/* Sub-headline */}
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Organize sprint tasks, coordinate cross-functional engineering squads, and automate project deliverables across enterprise multi-tenant workspaces.
-            </p>
+            <motion.p
+              variants={fadeInUp}
+              className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            >
+              Stop drowning in messy task lists. Plan your sprints, coordinate your squads, and keep deliverables on track with visual Kanban boards.
+            </motion.p>
 
-            {/* Hero CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            {/* CTAs */}
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3"
+            >
               <Link href="/register">
-                <Button size="lg" className="h-11 px-6 rounded-xl text-sm font-semibold gap-2 shadow-lg shadow-primary/20">
-                  <span>Start Free Trial</span>
+                <Button
+                  size="lg"
+                  className="h-11 px-7 rounded-xl text-xs sm:text-sm font-semibold gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <span>Start for Free</span>
                   <ArrowRight className="size-4" />
                 </Button>
               </Link>
@@ -68,278 +123,413 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-11 px-6 rounded-xl text-sm font-semibold gap-2 border-border/80 bg-card/60 backdrop-blur-md"
+                  className="h-11 px-6 rounded-xl text-xs sm:text-sm font-semibold gap-2 border-border/80 bg-card/60 backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <Zap className="size-4 text-amber-500" />
-                  <span>1-Click Demo Login</span>
+                  <span>Try 1-Click Demo</span>
                 </Button>
               </Link>
-            </div>
+            </motion.div>
 
-            {/* Tech Stack Trust Badges */}
-            <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground font-medium">
+            {/* Simple Trust Bullets */}
+            <motion.div
+              variants={fadeInUp}
+              className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground font-medium"
+            >
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Next.js 16 & Turbopack
+                <CheckCircle2 className="size-4 text-emerald-500" /> No credit card required
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-emerald-500" /> React 19 Client
+                <CheckCircle2 className="size-4 text-emerald-500" /> Instant setup in seconds
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-emerald-500" /> PostgreSQL & Prisma
+                <CheckCircle2 className="size-4 text-emerald-500" /> Local bKash gateway ready
               </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-emerald-500" /> bKash MFS PGW
-              </span>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </section>
 
         {/* 2. Interactive Kanban Visual Showcase */}
-        <section id="workflow" className="py-12 lg:py-20 bg-muted/20 border-y border-border/60">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="text-center space-y-2 max-w-2xl mx-auto">
+        <section id="workflow" className="py-16 lg:py-24 bg-muted/20 border-y border-border/60 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5 }}
+              className="text-center space-y-2 max-w-2xl mx-auto"
+            >
               <span className="text-primary text-xs font-bold uppercase tracking-wider">
-                Workflow Orchestration
+                Visual Workflow
               </span>
               <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-foreground">
-                Visual Kanban Boards for High-Velocity Teams
+                See Your Entire Sprint at a Glance
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Move tasks across sprint columns, inspect real-time audit logs, and collaborate with threaded comments.
+                Track every task from idea to launch across flexible sprint columns.
               </p>
-            </div>
+            </motion.div>
 
-            {/* Mockup Kanban Board */}
-            <div className="p-4 sm:p-6 rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl shadow-2xl overflow-x-auto">
-              <div className="flex items-start gap-4 min-w-[900px]">
-                {/* Column: To Do */}
-                <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-3.5 space-y-3">
+            {/* Smooth Motion Kanban Board Mockup */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ type: "spring", stiffness: 60, damping: 15 }}
+              className="p-4 sm:p-6 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl shadow-2xl overflow-x-auto"
+            >
+              <div className="flex items-start gap-4 min-w-[920px]">
+                {/* Column 1: To Do */}
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-3"
+                >
                   <div className="flex items-center justify-between pb-2 border-b border-border/40">
                     <span className="text-xs font-bold flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-slate-400" />
                       To Do
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted border border-border">2</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted border border-border">
+                      2
+                    </span>
                   </div>
-                  <div className="p-3 rounded-xl border border-border/70 bg-card shadow-xs space-y-2">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20 uppercase">Medium</span>
-                    <h4 className="text-xs font-bold text-foreground">Setup Redis Rate Limiter</h4>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">Throttle aggressive authentication attempts.</p>
-                  </div>
-                  <div className="p-3 rounded-xl border border-border/70 bg-card shadow-xs space-y-2">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-600 border border-slate-500/20 uppercase">Low</span>
-                    <h4 className="text-xs font-bold text-foreground">Update Privacy Policy docs</h4>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">Reflect bKash subscription refund clauses.</p>
-                  </div>
-                </div>
 
-                {/* Column: In Progress */}
-                <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-3.5 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                    <span className="text-xs font-bold flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-blue-500 ring-2 ring-blue-500/20" />
+                  <div className="p-3.5 rounded-xl border border-border/70 bg-card shadow-xs space-y-2 hover:border-primary/40 transition-colors">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20 uppercase">
+                      Medium
+                    </span>
+                    <h4 className="text-xs font-bold text-foreground">
+                      Design dark mode illustrations
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">
+                      Prepare SVG assets for the new workspace theme.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-border/70 bg-card shadow-xs space-y-2 hover:border-primary/40 transition-colors">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-600 border border-slate-500/20 uppercase">
+                      Low
+                    </span>
+                    <h4 className="text-xs font-bold text-foreground">
+                      Update privacy policy
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">
+                      Review terms with legal team.
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Column 2: In Progress */}
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="flex-1 rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-primary/20">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-primary">
+                      <span className="size-2 rounded-full bg-primary ring-2 ring-primary/20" />
                       In Progress
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20">1</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      1
+                    </span>
                   </div>
-                  <div className="p-3 rounded-xl border border-primary/40 bg-card shadow-xs space-y-2">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20 uppercase">Urgent</span>
-                    <h4 className="text-xs font-bold text-foreground">Interactive bKash Payment Modal</h4>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">Simulate checkout dialog with OTP verification.</p>
+
+                  <div className="p-3.5 rounded-xl border border-primary/40 bg-card shadow-xs space-y-2.5">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20 uppercase">
+                      Urgent
+                    </span>
+                    <h4 className="text-xs font-bold text-foreground">
+                      bKash payment checkout integration
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">
+                      Connect merchant API with instant wallet PIN confirmation.
+                    </p>
                     <div className="flex items-center justify-between pt-1 text-[10px] text-muted-foreground border-t border-border/50">
-                      <span className="flex items-center gap-1"><MessageSquare className="size-3" /> 3 comments</span>
-                      <span className="text-primary font-bold">Assigned</span>
+                      <span className="flex items-center gap-1 font-medium">
+                        <MessageSquare className="size-3 text-primary" /> 4 updates
+                      </span>
+                      <span className="font-bold text-primary">Active Sprint</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                {/* Column: In Review */}
-                <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-3.5 space-y-3">
+                {/* Column 3: In Review */}
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-3"
+                >
                   <div className="flex items-center justify-between pb-2 border-b border-border/40">
                     <span className="text-xs font-bold flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-amber-500 ring-2 ring-amber-500/20" />
                       In Review
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">1</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                      1
+                    </span>
                   </div>
-                  <div className="p-3 rounded-xl border border-border/70 bg-card shadow-xs space-y-2">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase">High</span>
-                    <h4 className="text-xs font-bold text-foreground">Admin User Ban/Unban API</h4>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">Security moderation guard implementation.</p>
-                  </div>
-                </div>
 
-                {/* Column: Done */}
-                <div className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-3.5 space-y-3">
+                  <div className="p-3.5 rounded-xl border border-border/70 bg-card shadow-xs space-y-2 hover:border-primary/40 transition-colors">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase">
+                      High
+                    </span>
+                    <h4 className="text-xs font-bold text-foreground">
+                      Admin user moderation panel
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">
+                      Review 1-click ban & unban permissions.
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Column 4: Done */}
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="flex-1 rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-3"
+                >
                   <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                    <span className="text-xs font-bold flex items-center gap-1.5">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-emerald-600">
                       <span className="size-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" />
                       Done
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">2</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                      2
+                    </span>
                   </div>
-                  <div className="p-3 rounded-xl border border-border/70 bg-card/60 shadow-xs space-y-2 opacity-80">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 uppercase">Complete</span>
-                    <h4 className="text-xs font-bold line-through text-muted-foreground">JWT Refresh Token Flow</h4>
+
+                  <div className="p-3.5 rounded-xl border border-border/70 bg-card/60 shadow-xs space-y-2 opacity-80">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 uppercase">
+                      Done
+                    </span>
+                    <h4 className="text-xs font-bold line-through text-muted-foreground">
+                      JWT authentication flow
+                    </h4>
                   </div>
-                  <div className="p-3 rounded-xl border border-border/70 bg-card/60 shadow-xs space-y-2 opacity-80">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 uppercase">Complete</span>
-                    <h4 className="text-xs font-bold line-through text-muted-foreground">Automated Sprint Board Genesis</h4>
+
+                  <div className="p-3.5 rounded-xl border border-border/70 bg-card/60 shadow-xs space-y-2 opacity-80">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 uppercase">
+                      Done
+                    </span>
+                    <h4 className="text-xs font-bold line-through text-muted-foreground">
+                      Automated board creation
+                    </h4>
                   </div>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* 3. Features Grid */}
+        {/* 3. Features Section with Smooth Stagger */}
         <section id="features" className="py-20 lg:py-28">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-            <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5 }}
+              className="text-center space-y-2 max-w-2xl mx-auto"
+            >
               <span className="text-primary text-xs font-bold uppercase tracking-wider">
-                Enterprise Features
+                Built for Clarity
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-foreground">
-                Everything Modern Engineering Teams Need
+                Everything You Need to Stay on Track
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Built specifically to solve high-friction collaboration bottlenecks in complex software projects.
+                Powerful features designed to keep your workflow simple, clear, and fast.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-60px" }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
               {/* Feature 1 */}
-              <div className="p-6 rounded-2xl border border-border/70 bg-card hover:border-primary/50 transition-colors space-y-3">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="p-6 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3"
+              >
                 <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                   <KanbanSquare className="size-5" />
                 </div>
                 <h3 className="text-base font-bold font-heading text-foreground">
-                  Automated Agile Boards
+                  Visual Kanban Boards
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Creating any new project automatically instantiates a 4-column sprint board ready for instant task allocation.
+                  Every new project automatically starts with a clean 4-stage sprint board ready for work.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Feature 2 */}
-              <div className="p-6 rounded-2xl border border-border/70 bg-card hover:border-primary/50 transition-colors space-y-3">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="p-6 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3"
+              >
                 <div className="size-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
                   <Building2 className="size-5" />
                 </div>
                 <h3 className="text-base font-bold font-heading text-foreground">
-                  Multi-Tenant Workspaces
+                  Team Workspaces
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Manage multiple independent organizations and company workspaces with dedicated slug namespaces.
+                  Organize different companies or departments into clean, isolated workspaces.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Feature 3 */}
-              <div className="p-6 rounded-2xl border border-border/70 bg-card hover:border-primary/50 transition-colors space-y-3">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="p-6 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3"
+              >
                 <div className="size-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
                   <Users2 className="size-5" />
                 </div>
                 <h3 className="text-base font-bold font-heading text-foreground">
-                  Team Squads & Allocation
+                  Functional Squads
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Group collaborators into functional squads (Frontend, Backend, QA) and assign direct task responsibility.
+                  Group people into squads like Engineering, Design, or QA, and assign tasks with one click.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Feature 4 */}
-              <div className="p-6 rounded-2xl border border-border/70 bg-card hover:border-primary/50 transition-colors space-y-3">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="p-6 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3"
+              >
                 <div className="size-10 rounded-xl bg-pink-500/10 text-pink-600 flex items-center justify-center">
                   <CreditCard className="size-5" />
                 </div>
                 <h3 className="text-base font-bold font-heading text-foreground">
-                  bKash PGW Billing
+                  Easy bKash Payments
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Seamless local mobile financial payment gateway integration with instant workspace subscription upgrades.
+                  Upgrade your plan seamlessly using your bKash wallet with instant OTP verification.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Feature 5 */}
-              <div className="p-6 rounded-2xl border border-border/70 bg-card hover:border-primary/50 transition-colors space-y-3">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="p-6 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3"
+              >
                 <div className="size-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
                   <ShieldCheck className="size-5" />
                 </div>
                 <h3 className="text-base font-bold font-heading text-foreground">
-                  RBAC Route Guards
+                  Smart Role Permissions
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Multi-layer authorization protects Admin, Manager, and Member routes against tampering and privilege escalation.
+                  Role-based access protects sensitive actions for Admins, Managers, and Members.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Feature 6 */}
-              <div className="p-6 rounded-2xl border border-border/70 bg-card hover:border-primary/50 transition-colors space-y-3">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="p-6 rounded-2xl border border-border/70 bg-card shadow-xs space-y-3"
+              >
                 <div className="size-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
                   <MessageSquare className="size-5" />
                 </div>
                 <h3 className="text-base font-bold font-heading text-foreground">
-                  Threaded Discussion & Audit
+                  Threaded Discussions
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Live task commenting combined with immutable chronological activity logs tracks every sprint alteration.
+                  Keep all task conversations, feedback, and audit logs together in one clear place.
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
-        {/* 4. Evaluator 1-Click Demo Showcase */}
-        <section className="py-16 bg-gradient-to-b from-transparent via-primary/5 to-transparent border-t border-border/60">
+        {/* 4. Test 1-Click Demo Sandbox */}
+        <section className="py-16 bg-muted/20 border-t border-border/60">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-center">
-            <div className="space-y-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              className="space-y-2"
+            >
               <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                Examiner & Evaluator Fast Track
+                Instant Evaluation
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-foreground">
-                Experience All 3 Roles with 1-Click Demo Login
+                Experience All Roles in Seconds
               </h2>
               <p className="text-xs text-muted-foreground max-w-lg mx-auto">
-                No manual registration needed to test all capabilities. Choose a pre-seeded account on the sign-in page.
+                No need to type credentials manually. Simply pick an account on the sign-in page to start exploring.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-              <div className="p-5 rounded-2xl border border-purple-500/20 bg-card shadow-xs space-y-2">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-60px" }}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left"
+            >
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -4 }}
+                className="p-5 rounded-2xl border border-purple-500/20 bg-card shadow-xs space-y-2"
+              >
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 uppercase">
-                  Root Admin
+                  Administrator
                 </span>
-                <h4 className="text-sm font-bold text-foreground">Admin Workflow</h4>
+                <h4 className="text-sm font-bold text-foreground">Admin Control</h4>
                 <p className="text-xs text-muted-foreground">
-                  Global KPIs, platform-wide user ban/unban moderation, and bKash transaction refund audits.
+                  System KPIs, user access moderation, and payment refund history.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="p-5 rounded-2xl border border-blue-500/20 bg-card shadow-xs space-y-2">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -4 }}
+                className="p-5 rounded-2xl border border-blue-500/20 bg-card shadow-xs space-y-2"
+              >
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 uppercase">
-                  Org Manager
+                  Manager
                 </span>
-                <h4 className="text-sm font-bold text-foreground">Manager Workflow</h4>
+                <h4 className="text-sm font-bold text-foreground">Manager Space</h4>
                 <p className="text-xs text-muted-foreground">
-                  Create organizations, invite teammates, configure functional squads, and launch agile projects.
+                  Create organizations, set up team squads, and launch agile projects.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="p-5 rounded-2xl border border-emerald-500/20 bg-card shadow-xs space-y-2">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -4 }}
+                className="p-5 rounded-2xl border border-emerald-500/20 bg-card shadow-xs space-y-2"
+              >
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 uppercase">
-                  Team Member
+                  Member
                 </span>
-                <h4 className="text-sm font-bold text-foreground">Member Workflow</h4>
+                <h4 className="text-sm font-bold text-foreground">Member Board</h4>
                 <p className="text-xs text-muted-foreground">
-                  Move tasks across sprint stages, view assigned deliverables, post live comments, and audit profile.
+                  Move tasks across sprint columns, post comments, and view profile.
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             <div className="pt-2">
               <Link href="/login">
                 <Button size="lg" className="rounded-xl text-xs font-semibold gap-2 shadow-sm">
-                  <span>Open 1-Click Demo Login</span>
+                  <span>Open Demo Sign-In</span>
                   <ArrowRight className="size-3.5" />
                 </Button>
               </Link>
@@ -347,33 +537,41 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* 5. Final CTA Banner */}
         <section className="py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5 }}
+            className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+          >
             <div className="rounded-3xl border border-primary/20 bg-gradient-to-tr from-primary/10 via-primary/5 to-card p-8 sm:p-12 text-center space-y-5 shadow-xl">
               <h2 className="text-2xl sm:text-4xl font-black font-heading text-foreground">
-                Ready to Accelerate Your Agile Delivery?
+                Ready to Organize Your Work?
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                Join high-performing teams using TaskFlow SaaS to plan sprints, track velocity, and ship quality software faster.
+                Join forward-thinking teams shipping cleaner, faster software with TaskFlow today.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <Link href="/register">
                   <Button size="lg" className="rounded-xl text-xs font-semibold shadow-md gap-1.5">
-                    <span>Create Free Account</span>
+                    <span>Get Started Free</span>
                     <ArrowRight className="size-3.5" />
                   </Button>
                 </Link>
                 <Link href="/pricing">
                   <Button size="lg" variant="outline" className="rounded-xl text-xs font-semibold">
-                    View Pricing Plans
+                    View Pricing
                   </Button>
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
       </main>
 
+      {/* Real-World Public Footer */}
       <PublicFooter />
     </div>
   );

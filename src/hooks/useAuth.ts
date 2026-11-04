@@ -12,6 +12,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+function getErrorMessage(err: any, defaultMsg: string): string {
+  if (err?.message?.includes("Failed to fetch") || err?.name === "TypeError") {
+    return "Cannot reach backend server. Please ensure your Backend server is running at http://localhost:5000 (run: npm run dev)";
+  }
+  return err?.data?.message || err?.message || defaultMsg;
+}
+
 export function useGetMe() {
   return useQuery({
     queryKey: ["auth", "me"],
@@ -32,7 +39,7 @@ export function useLoginMutation() {
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Failed to login");
+      toast.error(getErrorMessage(err, "Failed to login"));
     },
   });
 }
@@ -44,7 +51,7 @@ export function useRegisterMutation() {
       toast.success(res.message || "Registration OTP sent to email!");
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Registration failed");
+      toast.error(getErrorMessage(err, "Registration failed"));
     },
   });
 }
@@ -59,7 +66,7 @@ export function useVerifyEmailMutation() {
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Verification failed");
+      toast.error(getErrorMessage(err, "Verification failed"));
     },
   });
 }
@@ -74,7 +81,7 @@ export function useGoogleLoginMutation() {
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Google login failed");
+      toast.error(getErrorMessage(err, "Google login failed"));
     },
   });
 }
@@ -86,7 +93,7 @@ export function useForgotPasswordMutation() {
       toast.success(res.message || "Password reset OTP sent to email!");
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Failed to send OTP");
+      toast.error(getErrorMessage(err, "Failed to send OTP"));
     },
   });
 }
@@ -101,7 +108,7 @@ export function useResetPasswordMutation() {
       router.push("/login");
     },
     onError: (err: any) => {
-      toast.error(err.data?.message || err.message || "Failed to reset password");
+      toast.error(getErrorMessage(err, "Failed to reset password"));
     },
   });
 }

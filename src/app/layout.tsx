@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -25,9 +25,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "PulseFlow | Modern Project Management SaaS",
-  description: "Enterprise-grade Project Management SaaS platform with Kanban Boards, Team Workflows, and bKash Payments",
+  title: {
+    default: "TaskFlow SaaS | Agile Project Management Platform",
+    template: "%s | TaskFlow SaaS",
+  },
+  description:
+    "Enterprise-grade agile project management SaaS platform with automated Kanban boards, multi-tenant organizations, functional squads, real-time threaded comments, and bKash PGW billing integration.",
+  keywords: [
+    "Project Management",
+    "Agile Kanban",
+    "Sprint Tracking",
+    "Task Management",
+    "Next.js 16",
+    "React 19",
+    "Tailwind CSS v4",
+    "PostgreSQL",
+    "bKash Payment Gateway",
+    "Domain 8 SaaS",
+  ],
+  authors: [{ name: "Fullstack Engineering Team" }],
+  creator: "Fullstack SaaS Project Assignment",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://taskflow-saas.local",
+    title: "TaskFlow SaaS | Agile Project Management Platform",
+    description:
+      "Supercharge sprint velocity with automated Kanban boards, team squads, and secure bKash subscriptions.",
+    siteName: "TaskFlow SaaS",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -50,7 +90,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
           {children}
-          {/* গ্লোবাল টোস্ট নোটিফিকেশন সিস্টেম */}
+          {/* Notification Sonner Toaster */}
           <Toaster position="top-right" richColors closeButton />
         </Providers>
       </body>
