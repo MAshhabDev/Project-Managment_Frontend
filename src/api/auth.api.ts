@@ -66,7 +66,13 @@ export function resetPassword(payload: IResetPasswordPayload) {
 }
 
 export function refreshToken() {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("refreshToken")
+      : undefined;
+
   return apiClient<ApiResponse<{ accessToken: string }>>("/auth/refresh-token", {
     method: "POST",
+    body: { refreshToken: token },
   });
 }
