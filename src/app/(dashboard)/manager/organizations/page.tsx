@@ -13,15 +13,11 @@ import { Label } from "@/components/ui/label";
 import {
   Building2,
   Plus,
-  Mail,
   Users,
   UserPlus,
   Shield,
   X,
   Sparkles,
-  Calendar,
-  CheckCircle2,
-  User,
 } from "lucide-react";
 
 export default function OrganizationsPage() {
@@ -316,7 +312,7 @@ export default function OrganizationsPage() {
                 <Label className="text-xs font-semibold">Teammate Email Address</Label>
                 <Input
                   type="email"
-                  placeholder="colleague@example.com"
+                  placeholder="e.g. member@gmail.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   className="h-9 text-xs rounded-xl"
@@ -336,6 +332,16 @@ export default function OrganizationsPage() {
                 </select>
               </div>
 
+              <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-muted-foreground space-y-1">
+                <div className="flex items-center gap-1.5 font-semibold text-primary">
+                  <Sparkles className="size-3.5" />
+                  <span>Important Note</span>
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  The teammate must already be registered on the platform (e.g. <code>member@gmail.com</code>). Inviting them instantly links their account to this organization and grants them immediate workspace access!
+                </p>
+              </div>
+
               <div className="flex items-center justify-end gap-2 pt-2">
                 <Button
                   type="button"
@@ -352,7 +358,7 @@ export default function OrganizationsPage() {
                   disabled={!inviteEmail.trim() || inviteMemberMutation.isPending}
                   className="rounded-xl text-xs"
                 >
-                  {inviteMemberMutation.isPending ? "Sending..." : "Send Invitation"}
+                  {inviteMemberMutation.isPending ? "Adding Member..." : "Send Invitation"}
                 </Button>
               </div>
             </form>

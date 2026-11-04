@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Role } from "@/types";
 import { adminRoutes, managerRoutes, memberRoutes } from "@/routes";
-import { KanbanSquare, Sparkles, Globe } from "lucide-react";
+import { KanbanSquare, Sparkles, Globe, CreditCard } from "lucide-react";
 
 interface IDashboardSidebarProps {
   role: Role;
@@ -109,17 +109,28 @@ export function DashboardSidebar({
             <span>Go to Home Page</span>
           </Link>
 
-          <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 flex items-center gap-3">
-            <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <Sparkles className="size-4" />
+          {/* Upgrade Plan link widget */}
+          <Link
+            href="/pricing"
+            onClick={onClose}
+            className="p-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all flex items-center justify-between gap-3 group"
+            title="Click to view pricing & upgrade plan"
+          >
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="overflow-hidden text-left">
+                <p className="text-xs font-bold truncate">Upgrade Plan</p>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  bKash Subscriptions
+                </p>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold truncate">Enterprise SaaS</p>
-              <p className="text-[10px] text-muted-foreground truncate">
-                bKash Billing Active
-              </p>
-            </div>
-          </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20 shrink-0">
+              Plans
+            </span>
+          </Link>
         </div>
       </aside>
     </>

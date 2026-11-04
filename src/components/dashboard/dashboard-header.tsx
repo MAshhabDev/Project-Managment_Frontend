@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { IUser, Role } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Menu, Sun, Moon, LogOut, User, Globe } from "lucide-react";
+import { Menu, Sun, Moon, LogOut, User, Globe, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 
 interface IDashboardHeaderProps {
@@ -54,6 +54,16 @@ export function DashboardHeader({ user, onMenuToggle }: IDashboardHeaderProps) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Upgrade Plan Link */}
+        <Link
+          href="/pricing"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 text-xs font-semibold text-primary transition-all shadow-xs"
+          title="View Pricing & Upgrade Plan"
+        >
+          <CreditCard className="size-3.5" />
+          <span className="hidden sm:inline">Upgrade Plan</span>
+        </Link>
+
         {/* Back to Home Page link */}
         <Link
           href="/"
