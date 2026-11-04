@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useGetMe, useProjectsQuery } from "@/hooks";
-import { Button } from "@/components/ui/button";
+import { IProject } from "@/types";
 import {
   Card,
   CardContent,
@@ -27,7 +27,14 @@ export default function MemberDashboardPage() {
   const user = userData?.data;
 
   const { data: projectsData, isLoading } = useProjectsQuery();
-  const projects = projectsData?.data || [];
+  
+  // Defensively ensure projects is always an array
+  const rawProjects = projectsData?.data;
+  const projects: IProject[] = Array.isArray(rawProjects)
+    ? rawProjects
+    : Array.isArray((rawProjects as any)?.data)
+      ? (rawProjects as any).data
+      : [];
 
   let totalTasks = 0;
   let completedTasks = 0;
@@ -38,9 +45,9 @@ export default function MemberDashboardPage() {
       b.columns?.forEach((c) => {
         const count = c.tasks?.length || 0;
         totalTasks += count;
-        if (c.title.toLowerCase().includes("done")) {
+        if (c.title?.toLowerCase().includes("done")) {
           completedTasks += count;
-        } else if (c.title.toLowerCase().includes("progress")) {
+        } else if (c.title?.toLowerCase().includes("progress")) {
           inProgressTasks += count;
         }
       });
@@ -202,15 +209,13 @@ export default function MemberDashboardPage() {
                       )}
                     </div>
 
-                    <Button
-                      className="w-full font-semibold shadow-xs"
-                      size="sm"
+                    <Link
+                      href={`/dashboard/projects/${project.id}`}
+                      className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs"
                     >
-                      <Link href={`/dashboard/projects/${project.id}`}>
-                        Open Kanban Board
-                        <ArrowRight className="ml-2 size-3.5 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </Button>
+                      Open Kanban Board
+                      <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </CardContent>
                 </Card>
               );

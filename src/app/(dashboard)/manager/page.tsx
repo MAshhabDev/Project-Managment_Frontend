@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useGetMe, useMyOrganizationsQuery, useProjectsQuery } from "@/hooks";
+import { IProject } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,14 +15,10 @@ import {
   Building2,
   Users2,
   FolderKanban,
-  KanbanSquare,
   Sparkles,
   ArrowRight,
   Plus,
-  CheckCircle2,
-  Clock,
   TrendingUp,
-  ShieldCheck,
 } from "lucide-react";
 
 export default function ManagerDashboardPage() {
@@ -34,7 +31,13 @@ export default function ManagerDashboardPage() {
 
   const { data: projectsData, isLoading: isLoadingProjects } =
     useProjectsQuery();
-  const projects = projectsData?.data || [];
+
+  const rawProjects = projectsData?.data;
+  const projects: IProject[] = Array.isArray(rawProjects)
+    ? rawProjects
+    : Array.isArray((rawProjects as any)?.data)
+      ? (rawProjects as any).data
+      : [];
 
   const totalMembers = organizations.reduce(
     (acc, org) => acc + (org.members?.length || 0),
@@ -50,9 +53,9 @@ export default function ManagerDashboardPage() {
       b.columns?.forEach((c) => {
         const count = c.tasks?.length || 0;
         totalTasks += count;
-        if (c.title.toLowerCase().includes("done")) {
+        if (c.title?.toLowerCase().includes("done")) {
           completedTasks += count;
-        } else if (c.title.toLowerCase().includes("progress")) {
+        } else if (c.title?.toLowerCase().includes("progress")) {
           inProgressTasks += count;
         }
       });
@@ -83,25 +86,20 @@ export default function ManagerDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/manager/organizations">
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-xl text-xs gap-1.5"
-              >
-                <Building2 className="size-3.5" />
-                Manage Orgs
-              </Button>
+            <Link
+              href="/manager/organizations"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-input bg-background hover:bg-muted transition-colors shadow-xs"
+            >
+              <Building2 className="size-3.5" />
+              Manage Orgs
             </Link>
 
-            <Link href="/manager/projects">
-              <Button
-                size="sm"
-                className="rounded-xl text-xs gap-1.5 shadow-sm"
-              >
-                <Plus className="size-3.5" />
-                New Project
-              </Button>
+            <Link
+              href="/manager/projects"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              <Plus className="size-3.5" />
+              New Project
             </Link>
           </div>
         </div>
@@ -197,14 +195,11 @@ export default function ManagerDashboardPage() {
                 Track deliverables and sprint status for your teams.
               </p>
             </div>
-            <Link href="/manager/projects">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-primary gap-1"
-              >
-                View all <ArrowRight className="size-3" />
-              </Button>
+            <Link
+              href="/manager/projects"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+            >
+              View all <ArrowRight className="size-3" />
             </Link>
           </div>
 
@@ -227,10 +222,11 @@ export default function ManagerDashboardPage() {
                 Start by creating your first agile project with automated Kanban
                 workflow boards.
               </p>
-              <Link href="/manager/projects">
-                <Button size="sm" className="mt-2 rounded-xl text-xs">
-                  Create First Project
-                </Button>
+              <Link
+                href="/manager/projects"
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs"
+              >
+                Create First Project
               </Link>
             </div>
           ) : (
@@ -243,7 +239,7 @@ export default function ManagerDashboardPage() {
                 );
                 const projDone =
                   columns.find((col) =>
-                    col.title.toLowerCase().includes("done"),
+                    col.title?.toLowerCase().includes("done"),
                   )?.tasks?.length || 0;
                 const percent =
                   projTotal > 0 ? Math.round((projDone / projTotal) * 100) : 0;
@@ -286,15 +282,12 @@ export default function ManagerDashboardPage() {
                         </div>
                       </div>
 
-                      <Link href={`/dashboard/projects/${project.id}`}>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-xl text-xs gap-1"
-                        >
-                          <span>Board</span>
-                          <ArrowRight className="size-3" />
-                        </Button>
+                      <Link
+                        href={`/dashboard/projects/${project.id}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold border border-input bg-background hover:bg-muted transition-colors"
+                      >
+                        <span>Board</span>
+                        <ArrowRight className="size-3" />
                       </Link>
                     </div>
                   </div>
@@ -312,14 +305,11 @@ export default function ManagerDashboardPage() {
               </h2>
               <p className="text-xs text-muted-foreground">Managed entities.</p>
             </div>
-            <Link href="/manager/organizations">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-primary gap-1"
-              >
-                View all <ArrowRight className="size-3" />
-              </Button>
+            <Link
+              href="/manager/organizations"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+            >
+              View all <ArrowRight className="size-3" />
             </Link>
           </div>
 
@@ -341,14 +331,11 @@ export default function ManagerDashboardPage() {
               <p className="text-[11px] text-muted-foreground">
                 Create an organization to invite teammates.
               </p>
-              <Link href="/manager/organizations">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="mt-2 text-xs rounded-xl"
-                >
-                  Add Organization
-                </Button>
+              <Link
+                href="/manager/organizations"
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-input text-xs font-semibold hover:bg-muted transition-colors"
+              >
+                Add Organization
               </Link>
             </div>
           ) : (

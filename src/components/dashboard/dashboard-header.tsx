@@ -17,6 +17,10 @@ export function DashboardHeader({ user, onMenuToggle }: IDashboardHeaderProps) {
   const router = useRouter();
 
   const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    }
     document.cookie =
       "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     document.cookie =

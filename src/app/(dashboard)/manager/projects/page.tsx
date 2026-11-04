@@ -7,7 +7,7 @@ import {
   useMyOrganizationsQuery,
   useProjectsQuery,
 } from "@/hooks";
-import { ProjectStatus } from "@/types";
+import { IProject, ProjectStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +31,12 @@ export default function ManagerProjectsPage() {
   const organizations = orgsData?.data || [];
 
   const { data: projectsData, isLoading } = useProjectsQuery();
-  const projects = projectsData?.data || [];
+  const rawProjects = projectsData?.data;
+  const projects: IProject[] = Array.isArray(rawProjects)
+    ? rawProjects
+    : Array.isArray((rawProjects as any)?.data)
+      ? (rawProjects as any).data
+      : [];
 
   const createProjectMutation = useCreateProjectMutation();
 
@@ -61,26 +66,28 @@ export default function ManagerProjectsPage() {
     });
   }, [projects, searchTerm, statusFilter]);
 
-  const handleCreateProject = (e: React.FormEvent) => {
+  const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim()) return;
+
     const targetOrgId = orgId || organizations[0]?.id;
-    if (!targetOrgId || !name.trim()) return;
+    if (!targetOrgId) return;
 
     createProjectMutation.mutate(
       {
         organizationId: targetOrgId,
         name: name.trim(),
         description: description.trim() || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
+        startDate: startDate ? new Date(startDate).toISOString() : undefined,
+        endDate: endDate ? new Date(endDate).toISOString() : undefined,
       },
       {
         onSuccess: () => {
+          setIsCreateOpen(false);
           setName("");
           setDescription("");
           setStartDate("");
           setEndDate("");
-          setIsCreateOpen(false);
         },
       },
     );
@@ -94,105 +101,140 @@ export default function ManagerProjectsPage() {
         return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
       case ProjectStatus.PLANNING:
         return "bg-amber-500/10 text-amber-600 border-amber-500/20";
+      case ProjectStatus.ARCHIVED:
+        return "bg-rose-500/10 text-rose-600 border-rose-500/20";
       default:
         return "bg-muted text-muted-foreground border-border";
     }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl shadow-xs">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-primary font-semibold text-xs uppercase tracking-wider">
-            <FolderKanban className="size-4" />
-            <span>Sprint Architecture</span>
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-2">
+            <Sparkles className="size-3.5" />
+            <span>Project Management</span>
           </div>
-          <h1 className="text-2xl font-black font-heading tracking-tight text-foreground">
-            Projects & Agile Boards
+          <h1 className="text-3xl font-extrabold font-heading tracking-tight">
+            Agile Projects
           </h1>
-          <p className="text-xs text-muted-foreground">
-            Create agile workspaces, configure sprint boards, and monitor task
-            completion.
+          <p className="text-sm text-muted-foreground mt-1">
+            Create, configure and lead sprints across your organization workspaces.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="relative w-full sm:w-60">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Search projects..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 h-9 text-xs rounded-xl"
-            />
-          </div>
+        <Button
+          onClick={() => {
+            if (organizations.length > 0 && !orgId) {
+              setOrgId(organizations[0].id);
+            }
+            setIsCreateOpen(true);
+          }}
+          className="rounded-xl text-xs gap-1.5 shadow-sm"
+        >
+          <Plus className="size-4" />
+          Create Project
+        </Button>
+      </div>
 
-          <Button
-            onClick={() => {
-              if (organizations.length > 0 && !orgId) {
-                setOrgId(organizations[0].id);
-              }
-              setIsCreateOpen(true);
-            }}
-            className="rounded-xl text-xs gap-1.5 shadow-sm shrink-0"
-          >
-            <Plus className="size-3.5" />
-            New Project
-          </Button>
+      {/* KPI Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-5 rounded-2xl border border-border/70 bg-card shadow-xs">
+          <span className="text-xs font-semibold text-muted-foreground">
+            Total Projects
+          </span>
+          <div className="text-2xl font-black font-heading mt-2">
+            {projects.length}
+          </div>
+          <span className="text-[11px] text-muted-foreground mt-1 block">
+            Across {organizations.length} organizations
+          </span>
+        </div>
+
+        <div className="p-5 rounded-2xl border border-border/70 bg-card shadow-xs">
+          <span className="text-xs font-semibold text-muted-foreground">
+            In Progress
+          </span>
+          <div className="text-2xl font-black font-heading mt-2 text-blue-500">
+            {
+              projects.filter((p) => p.status === ProjectStatus.IN_PROGRESS)
+                .length
+            }
+          </div>
+          <span className="text-[11px] text-muted-foreground mt-1 block">
+            Currently active sprints
+          </span>
+        </div>
+
+        <div className="p-5 rounded-2xl border border-border/70 bg-card shadow-xs">
+          <span className="text-xs font-semibold text-muted-foreground">
+            Completed
+          </span>
+          <div className="text-2xl font-black font-heading mt-2 text-emerald-500">
+            {
+              projects.filter((p) => p.status === ProjectStatus.COMPLETED)
+                .length
+            }
+          </div>
+          <span className="text-[11px] text-muted-foreground mt-1 block">
+            Successfully delivered
+          </span>
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-        <span className="text-muted-foreground flex items-center gap-1 font-semibold text-xs mr-1 shrink-0">
-          <Filter className="size-3.5" /> Status:
-        </span>
-        {[
-          { key: "ALL", label: "All Projects" },
-          { key: ProjectStatus.IN_PROGRESS, label: "In Progress" },
-          { key: ProjectStatus.PLANNING, label: "Planning" },
-          { key: ProjectStatus.COMPLETED, label: "Completed" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setStatusFilter(tab.key)}
-            className={`px-3 py-1.5 rounded-xl font-medium transition-all shrink-0 border ${
-              statusFilter === tab.key
-                ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                : "bg-muted/30 text-muted-foreground border-border hover:text-foreground hover:bg-muted"
-            }`}
+      {/* Filters & Search */}
+      <div className="p-4 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-3">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search projects by name, description, or organization..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 h-10 rounded-xl bg-background/80"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="size-4 text-muted-foreground hidden sm:inline" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-10 px-3 rounded-xl border border-input bg-background/80 text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-ring cursor-pointer w-full sm:w-auto"
           >
-            {tab.label}
-          </button>
-        ))}
+            <option value="ALL">All Statuses</option>
+            <option value={ProjectStatus.PLANNING}>Planning</option>
+            <option value={ProjectStatus.IN_PROGRESS}>In Progress</option>
+            <option value={ProjectStatus.COMPLETED}>Completed</option>
+            <option value={ProjectStatus.ARCHIVED}>Archived</option>
+          </select>
+        </div>
       </div>
 
+      {/* Projects Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3, 4, 5, 6].map((n) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
-              key={n}
-              className="h-56 rounded-2xl border border-border/40 bg-muted/20 animate-pulse"
+              key={i}
+              className="h-60 rounded-2xl border border-border/40 bg-muted/20 animate-pulse"
             />
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl border border-dashed border-border/70 bg-card/30 space-y-3">
-          <FolderKanban className="size-10 text-muted-foreground mx-auto" />
-          <h3 className="text-base font-bold text-foreground">
-            No Projects Found
-          </h3>
+        <div className="p-12 text-center rounded-2xl border border-dashed border-border/70 bg-card/40 space-y-3">
+          <FolderKanban className="size-12 text-muted-foreground mx-auto" />
+          <h3 className="text-base font-bold">No Projects Found</h3>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
             {searchTerm || statusFilter !== "ALL"
-              ? "No projects match your search or filter criteria."
-              : "No projects created yet. Start by creating an agile workspace."}
+              ? "No projects match your current filters. Try resetting search."
+              : "Get started by creating your first agile project with a preconfigured Kanban board."}
           </p>
           <Button
-            onClick={() => setIsCreateOpen(true)}
             size="sm"
-            className="mt-2 rounded-xl text-xs gap-1.5"
+            onClick={() => setIsCreateOpen(true)}
+            className="mt-2 rounded-xl text-xs"
           >
-            <Plus className="size-3.5" />
             Create First Project
           </Button>
         </div>
@@ -205,7 +247,7 @@ export default function ManagerProjectsPage() {
               0,
             );
             const doneTasks =
-              columns.find((col) => col.title.toLowerCase().includes("done"))
+              columns.find((col) => col.title?.toLowerCase().includes("done"))
                 ?.tasks?.length || 0;
             const progress =
               totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
@@ -279,15 +321,12 @@ export default function ManagerProjectsPage() {
                     )}
                   </div>
 
-                  <Link href={`/dashboard/projects/${project.id}`}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-xl text-xs gap-1 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors"
-                    >
-                      <span>Open Board</span>
-                      <ArrowRight className="size-3.5" />
-                    </Button>
+                  <Link
+                    href={`/dashboard/projects/${project.id}`}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold border border-input bg-background hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                  >
+                    <span>Open Board</span>
+                    <ArrowRight className="size-3.5" />
                   </Link>
                 </div>
               </div>

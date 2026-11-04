@@ -10,8 +10,17 @@ const apiClient = ofetch.create({
   headers: {
     Accept: "application/json",
   },
+  onRequest({ options }) {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        const headers = new Headers(options.headers);
+        headers.set("Authorization", `Bearer ${token}`);
+        options.headers = headers;
+      }
+    }
+  },
   async onResponseError({ response }) {
-    // Expected client / auth rejections are handled by UI components & toast notifications
     const msg = String(response._data?.message || "").toLowerCase();
     if (
       response.status === 401 ||

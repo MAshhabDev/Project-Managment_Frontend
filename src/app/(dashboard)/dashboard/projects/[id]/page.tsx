@@ -3,7 +3,7 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { useProjectsQuery } from "@/hooks";
-import { ITask } from "@/types";
+import { IProject, ITask } from "@/types";
 import { KanbanColumn } from "@/components/modules/kanban/kanban-column";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { TaskModal } from "@/components/modules/kanban/task-modal";
-
 import { CreateTaskModal } from "@/components/modules/kanban/create-task-modal";
 import { Plus } from "lucide-react";
 
@@ -34,7 +33,13 @@ export default function ProjectKanbanPage({
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
 
   const { data: projectsData, isLoading } = useProjectsQuery();
-  const project = projectsData?.data?.find((p) => p.id === projectId);
+  const rawProjects = projectsData?.data;
+  const projects: IProject[] = Array.isArray(rawProjects)
+    ? rawProjects
+    : Array.isArray((rawProjects as any)?.data)
+      ? (rawProjects as any).data
+      : [];
+  const project = projects.find((p) => p.id === projectId);
 
   const mainBoard = project?.boards?.[0];
   const rawColumns = mainBoard?.columns || [];
@@ -86,11 +91,12 @@ export default function ProjectKanbanPage({
           The project you are looking for does not exist or you do not have
           permission to view it.
         </p>
-        <Button className="mt-4" size="sm">
-          <Link href="/dashboard">
-            <ArrowLeft className="mr-2 size-4" /> Back to Dashboard
-          </Link>
-        </Button>
+        <Link
+          href="/dashboard"
+          className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-xs"
+        >
+          <ArrowLeft className="size-4" /> Back to Dashboard
+        </Link>
       </div>
     );
   }
@@ -100,15 +106,12 @@ export default function ProjectKanbanPage({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl shadow-xs">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="size-8 p-0 text-muted-foreground hover:text-foreground"
+            <Link
+              href="/dashboard"
+              className="size-8 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             >
-              <Link href="/dashboard">
-                <ArrowLeft className="size-4" />
-              </Link>
-            </Button>
+              <ArrowLeft className="size-4" />
+            </Link>
 
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
               {project.status}
@@ -159,7 +162,6 @@ export default function ProjectKanbanPage({
 
           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-border bg-muted/40 shrink-0">
             <Sparkles className="size-3.5 text-primary" />
-
             <span>{totalTasks} Total Tasks</span>
           </div>
         </div>
