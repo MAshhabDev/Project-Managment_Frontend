@@ -118,6 +118,13 @@ export function BkashCheckoutModal({
       setTrxId(tx);
       setStep("success");
       setIsProcessing(false);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("active_subscription_plan", planName);
+        const targetOrgId = selectedOrgId || organizations[0]?.id;
+        if (targetOrgId) {
+          localStorage.setItem(`org_plan_${targetOrgId}`, planName);
+        }
+      }
       toast.success("Payment completed successfully! 🎉");
     };
 
@@ -344,15 +351,19 @@ export function BkashCheckoutModal({
                   Sandbox Test OTP: 123456
                 </span>
                 {bkashUrl && (
-                  <div className="pt-2">
+                  <div className="pt-2 p-3 rounded-2xl bg-[#E2136E]/10 border border-[#E2136E]/20 space-y-1.5 text-center">
+                    <p className="text-[11px] text-[#E2136E] font-bold">
+                      Official bKash PGW Redirect
+                    </p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">
+                      To settle the transaction officially as SUCCESS in the audit database, open the bKash hosted sandbox portal:
+                    </p>
                     <a
                       href={bkashUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[11px] text-[#E2136E] font-semibold hover:underline"
+                      className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-[#E2136E] text-white text-xs font-bold hover:bg-[#c0105d] transition-all shadow-xs"
                     >
-                      <span>Or pay via Official bKash Gateway</span>
-                      <ExternalLink className="size-3" />
+                      <span>Open Official bKash Gateway</span>
+                      <ExternalLink className="size-3.5" />
                     </a>
                   </div>
                 )}

@@ -240,6 +240,16 @@ export default function AdminPaymentsPage() {
                         >
                           {p.status}
                         </span>
+                        {p.status === PaymentStatus.PENDING && (
+                          <span className="block text-[9px] text-amber-600 dark:text-amber-400 mt-1 font-medium leading-tight">
+                            Awaiting Gateway Callback
+                          </span>
+                        )}
+                        {p.status === PaymentStatus.SUCCESS && (
+                          <span className="block text-[9px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium leading-tight">
+                            Settled via bKash PGW
+                          </span>
+                        )}
                       </td>
 
                       {/* Date */}

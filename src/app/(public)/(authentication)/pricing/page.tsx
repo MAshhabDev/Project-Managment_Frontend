@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/layout/public-navbar";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { Button } from "@/components/ui/button";
 import {
   Check,
+  CheckCircle2,
   Sparkles,
   CreditCard,
   ArrowRight,
@@ -17,6 +18,12 @@ import {
   Building2,
 } from "lucide-react";
 import { BkashCheckoutModal } from "@/components/modules/bkash-checkout-modal";
+import {
+  useGetMe,
+  useMyOrganizationsQuery,
+  useOrganizationPaymentsQuery,
+} from "@/hooks";
+import { IPayment, PaymentStatus } from "@/types";
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -24,6 +31,35 @@ export default function PricingPage() {
     name: string;
     amount: number;
   } | null>(null);
+
+  const { data: userData } = useGetMe();
+  const user = userData?.data;
+
+  const { data: orgsData } = useMyOrganizationsQuery();
+  const organizations = orgsData?.data || [];
+  const primaryOrgId = organizations[0]?.id || "";
+
+  const { data: paymentsData } = useOrganizationPaymentsQuery(primaryOrgId);
+  const payments: IPayment[] = (paymentsData?.data as IPayment[]) || [];
+
+  const [localSubscribedPlan, setLocalSubscribedPlan] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("active_subscription_plan");
+      if (saved) setLocalSubscribedPlan(saved);
+    }
+  }, []);
+
+  const hasSuccessfulPayment = payments.some(
+    (p) => p.status === PaymentStatus.SUCCESS,
+  );
+
+  const activePlanName =
+    localSubscribedPlan ||
+    (hasSuccessfulPayment ? "Professional" : user ? "Starter" : null);
 
   const plans = [
     {
@@ -167,22 +203,37 @@ export default function PricingPage() {
                 ? plan.priceAnnual
                 : plan.priceMonthly;
 
+              const isCurrentPlan = activePlanName === plan.name;
+              const isBaseTierIncluded =
+                plan.name === "Starter" &&
+                (activePlanName === "Professional" ||
+                  activePlanName === "Enterprise");
+
               return (
                 <div
                   key={plan.name}
                   className={`relative flex flex-col justify-between p-8 rounded-3xl border transition-all duration-200 ${
-                    plan.popular
-                      ? "border-primary bg-card shadow-2xl ring-2 ring-primary/20 -translate-y-2"
-                      : "border-border/80 bg-card/60 hover:border-primary/40"
+                    isCurrentPlan
+                      ? "border-emerald-500 bg-card shadow-2xl ring-2 ring-emerald-500/20 -translate-y-2"
+                      : plan.popular
+                        ? "border-primary bg-card shadow-2xl ring-2 ring-primary/20 -translate-y-2"
+                        : "border-border/80 bg-card/60 hover:border-primary/40"
                   }`}
                 >
-                  {plan.popular && (
+                  {isCurrentPlan ? (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                      <span className="bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                        <CheckCircle2 className="size-3" />
+                        Active Plan
+                      </span>
+                    </div>
+                  ) : plan.popular ? (
                     <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                       <span className="bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
                         {plan.badge}
                       </span>
                     </div>
-                  )}
+                  ) : null}
 
                   <div className="space-y-6">
                     {/* Header */}
@@ -191,7 +242,7 @@ export default function PricingPage() {
                         <h3 className="text-xl font-bold font-heading text-foreground">
                           {plan.name}
                         </h3>
-                        {!plan.popular && (
+                        {!plan.popular && !isCurrentPlan && (
                           <span className="text-[10px] font-semibold text-muted-foreground px-2 py-0.5 rounded-md bg-muted">
                             {plan.badge}
                           </span>
@@ -238,7 +289,31 @@ export default function PricingPage() {
 
                   {/* CTA Button */}
                   <div className="pt-8">
-                    {plan.priceMonthly > 0 ? (
+                    {isCurrentPlan ? (
+                      <div className="space-y-2">
+                        <Button
+                          disabled
+                          className="w-full rounded-xl text-xs font-semibold gap-1.5 shadow-sm bg-emerald-600 text-white cursor-default opacity-100 hover:bg-emerald-600"
+                        >
+                          <CheckCircle2 className="size-4" />
+                          <span>Current Active Plan</span>
+                        </Button>
+                        <Link
+                          href="/manager"
+                          className="text-center text-[11px] text-primary hover:underline block font-medium"
+                        >
+                          Open Manager Workspace →
+                        </Link>
+                      </div>
+                    ) : isBaseTierIncluded ? (
+                      <Button
+                        disabled
+                        variant="outline"
+                        className="w-full rounded-xl text-xs font-semibold gap-1.5 opacity-60 cursor-default"
+                      >
+                        <span>Included Base Tier</span>
+                      </Button>
+                    ) : plan.priceMonthly > 0 ? (
                       <Button
                         onClick={() =>
                           setSelectedPlanForPayment({
@@ -250,7 +325,11 @@ export default function PricingPage() {
                         variant={plan.popular ? "default" : "outline"}
                       >
                         <CreditCard className="size-3.5" />
-                        <span>{plan.ctaText}</span>
+                        <span>
+                          {activePlanName === "Professional"
+                            ? `Upgrade to ${plan.name}`
+                            : plan.ctaText}
+                        </span>
                         <ArrowRight className="size-3.5" />
                       </Button>
                     ) : (
