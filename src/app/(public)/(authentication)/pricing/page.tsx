@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { PublicNavbar } from "@/components/layout/public-navbar";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,16 @@ export default function PricingPage() {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("active_subscription_plan");
       if (saved) setLocalSubscribedPlan(saved);
+
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get("paymentStatus") || params.get("status");
+      if (status === "success") {
+        toast.success(
+          "bKash payment verified! Workspace upgraded to Professional 🎉",
+        );
+        localStorage.setItem("active_subscription_plan", "Professional");
+        setLocalSubscribedPlan("Professional");
+      }
     }
   }, []);
 
