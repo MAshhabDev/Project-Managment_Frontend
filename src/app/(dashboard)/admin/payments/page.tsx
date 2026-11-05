@@ -6,6 +6,7 @@ import {
   useMyOrganizationsQuery,
   useOrganizationPaymentsQuery,
   useRefundPaymentMutation,
+  useExecuteBkashMutation,
 } from "@/hooks";
 import { IPayment, PaymentStatus } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export default function AdminPaymentsPage() {
   const payments: IPayment[] = (paymentsData?.data as IPayment[]) || [];
 
   const refundMutation = useRefundPaymentMutation();
+  const executeMutation = useExecuteBkashMutation();
 
   const [refundTarget, setRefundTarget] = useState<IPayment | null>(null);
   const [refundAmount, setRefundAmount] = useState<number>(0);
@@ -271,6 +273,19 @@ export default function AdminPaymentsPage() {
                           >
                             <RotateCcw className="size-3.5" />
                             <span>Issue Refund</span>
+                          </Button>
+                        ) : p.status === PaymentStatus.PENDING ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={executeMutation.isPending}
+                            onClick={() =>
+                              executeMutation.mutate(p.transactionId)
+                            }
+                            className="rounded-xl text-xs gap-1.5 shadow-2xs border-amber-500/50 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                          >
+                            <CheckCircle2 className="size-3.5" />
+                            <span>Verify & Settle</span>
                           </Button>
                         ) : (
                           <span className="text-[11px] text-muted-foreground italic">

@@ -17,6 +17,8 @@ import {
   HelpCircle,
   KanbanSquare,
   Building2,
+  Clock,
+  RotateCcw,
 } from "lucide-react";
 import { BkashCheckoutModal } from "@/components/modules/bkash-checkout-modal";
 import {
@@ -40,7 +42,8 @@ export default function PricingPage() {
   const organizations = orgsData?.data || [];
   const primaryOrgId = organizations[0]?.id || "";
 
-  const { data: paymentsData } = useOrganizationPaymentsQuery(primaryOrgId);
+  const { data: paymentsData, isLoading: isLoadingPayments } =
+    useOrganizationPaymentsQuery(primaryOrgId);
   const rawPayments = paymentsData?.data;
   const payments: IPayment[] = Array.isArray(rawPayments)
     ? rawPayments
@@ -52,11 +55,28 @@ export default function PricingPage() {
     null,
   );
 
+  // Strictly verify SUCCESSFUL payments from database
+  const hasSuccessfulPro = payments.some(
+    (p) => p.amount === 1500 && p.status === PaymentStatus.SUCCESS,
+  );
+  const hasSuccessfulEnterprise = payments.some(
+    (p) => p.amount === 4500 && p.status === PaymentStatus.SUCCESS,
+  );
+
+  // Check PENDING payments (awaiting gateway settlement or callback)
+  const hasPendingPro =
+    !hasSuccessfulPro &&
+    payments.some(
+      (p) => p.amount === 1500 && p.status === PaymentStatus.PENDING,
+    );
+  const hasPendingEnterprise =
+    !hasSuccessfulEnterprise &&
+    payments.some(
+      (p) => p.amount === 4500 && p.status === PaymentStatus.PENDING,
+    );
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("active_subscription_plan");
-      if (saved) setLocalSubscribedPlan(saved);
-
       const params = new URLSearchParams(window.location.search);
       const status = params.get("paymentStatus") || params.get("status");
       if (status === "success") {
@@ -69,27 +89,32 @@ export default function PricingPage() {
     }
   }, []);
 
-  const proPayment = payments.find(
-    (p) =>
-      p.amount === 1500 &&
-      (p.status === PaymentStatus.SUCCESS || p.status === PaymentStatus.PENDING),
-  );
-  const enterprisePayment = payments.find(
-    (p) =>
-      p.amount === 4500 &&
-      (p.status === PaymentStatus.SUCCESS || p.status === PaymentStatus.PENDING),
-  );
+  // Sync localStorage with actual database records once paymentsData loads
+  useEffect(() => {
+    if (paymentsData && !isLoadingPayments) {
+      if (!hasSuccessfulPro && !hasSuccessfulEnterprise) {
+        localStorage.removeItem("active_subscription_plan");
+        setLocalSubscribedPlan(null);
+      } else if (hasSuccessfulEnterprise) {
+        localStorage.setItem("active_subscription_plan", "Enterprise");
+        setLocalSubscribedPlan("Enterprise");
+      } else if (hasSuccessfulPro) {
+        localStorage.setItem("active_subscription_plan", "Professional");
+        setLocalSubscribedPlan("Professional");
+      }
+    }
+  }, [
+    paymentsData,
+    isLoadingPayments,
+    hasSuccessfulPro,
+    hasSuccessfulEnterprise,
+  ]);
 
-  const detectedPlan = enterprisePayment
+  const activePlanName = hasSuccessfulEnterprise
     ? "Enterprise"
-    : proPayment
+    : hasSuccessfulPro
       ? "Professional"
-      : null;
-
-  const activePlanName =
-    localSubscribedPlan ||
-    detectedPlan ||
-    (user ? "Starter" : null);
+      : localSubscribedPlan || (user ? "Starter" : null);
 
   const plans = [
     {
@@ -234,6 +259,12 @@ export default function PricingPage() {
                 : plan.priceMonthly;
 
               const isCurrentPlan = activePlanName === plan.name;
+              const isPending =
+                plan.name === "Professional"
+                  ? hasPendingPro
+                  : plan.name === "Enterprise"
+                    ? hasPendingEnterprise
+                    : false;
               const isBaseTierIncluded =
                 plan.name === "Starter" &&
                 (activePlanName === "Professional" ||
@@ -245,9 +276,11 @@ export default function PricingPage() {
                   className={`relative flex flex-col justify-between p-8 rounded-3xl border transition-all duration-200 ${
                     isCurrentPlan
                       ? "border-emerald-500 bg-card shadow-2xl ring-2 ring-emerald-500/20 -translate-y-2"
-                      : plan.popular
-                        ? "border-primary bg-card shadow-2xl ring-2 ring-primary/20 -translate-y-2"
-                        : "border-border/80 bg-card/60 hover:border-primary/40"
+                      : isPending
+                        ? "border-amber-500/60 bg-amber-500/5 shadow-lg ring-2 ring-amber-500/20"
+                        : plan.popular
+                          ? "border-primary bg-card shadow-2xl ring-2 ring-primary/20 -translate-y-2"
+                          : "border-border/80 bg-card/60 hover:border-primary/40"
                   }`}
                 >
                   {isCurrentPlan ? (
@@ -255,6 +288,13 @@ export default function PricingPage() {
                       <span className="bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md flex items-center gap-1">
                         <CheckCircle2 className="size-3" />
                         Active Plan
+                      </span>
+                    </div>
+                  ) : isPending ? (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                      <span className="bg-amber-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                        <Clock className="size-3" />
+                        Payment Pending
                       </span>
                     </div>
                   ) : plan.popular ? (
@@ -299,6 +339,16 @@ export default function PricingPage() {
                           {(currentPrice * 12).toLocaleString()} BDT/yr)
                         </p>
                       )}
+                      {isPending && (
+                        <div className="mt-2.5 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-400 space-y-0.5">
+                          <p className="font-bold flex items-center gap-1">
+                            <Clock className="size-3" /> Awaiting Gateway Confirmation
+                          </p>
+                          <p className="text-[10px] text-muted-foreground leading-tight">
+                            A previous payment was initiated and is awaiting bKash verification.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Features list */}
@@ -333,6 +383,28 @@ export default function PricingPage() {
                           className="text-center text-[11px] text-primary hover:underline block font-medium"
                         >
                           Open Manager Workspace →
+                        </Link>
+                      </div>
+                    ) : isPending ? (
+                      <div className="space-y-2">
+                        <Button
+                          onClick={() =>
+                            setSelectedPlanForPayment({
+                              name: plan.name,
+                              amount: currentPrice,
+                            })
+                          }
+                          variant="outline"
+                          className="w-full rounded-xl text-xs font-semibold gap-1.5 shadow-sm border-amber-500/50 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                        >
+                          <RotateCcw className="size-3.5" />
+                          <span>Payment Pending · Click to Retry</span>
+                        </Button>
+                        <Link
+                          href="/admin/payments"
+                          className="text-center text-[10px] text-muted-foreground hover:text-foreground hover:underline block"
+                        >
+                          Audit settlement in Admin Payments →
                         </Link>
                       </div>
                     ) : isBaseTierIncluded ? (

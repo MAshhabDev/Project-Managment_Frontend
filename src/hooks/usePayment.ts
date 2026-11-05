@@ -37,14 +37,16 @@ export function useExecuteBkashMutation() {
 
   return useMutation({
     mutationFn: (paymentID: string) => executeBkashPayment(paymentID),
-    onSuccess: () => {
+    onSuccess: (res: any) => {
+      toast.success(
+        res?.message || "Payment verified & settled successfully! 🎉",
+      );
       queryClient.invalidateQueries({ queryKey: ["payments"] });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
     onError: (err: any) => {
-      console.warn(
-        "bKash execute notice:",
-        err.data?.message || err.message || "Payment execution failed"
+      toast.error(
+        err?.data?.message || err?.message || "Payment execution failed",
       );
     },
   });
