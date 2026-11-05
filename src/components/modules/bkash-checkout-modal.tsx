@@ -4,26 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
-  useExecuteBkashMutation,
   useGetMe,
   useInitiateBkashMutation,
   useMyOrganizationsQuery,
 } from "@/hooks";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  CreditCard,
   X,
-  CheckCircle2,
   Lock,
   ArrowRight,
   ShieldCheck,
   Building2,
-  Sparkles,
-  Phone,
-  KeyRound,
-  RotateCcw,
   ExternalLink,
   Loader2,
 } from "lucide-react";
@@ -47,143 +39,65 @@ export function BkashCheckoutModal({
   const { data: orgsData } = useMyOrganizationsQuery();
   const organizations = orgsData?.data || [];
 
-  const [step, setStep] = useState<"wallet" | "otp" | "pin" | "success">(
-    "wallet",
-  );
   const [selectedOrgId, setSelectedOrgId] = useState("");
-  const [walletNumber, setWalletNumber] = useState("01770618575");
-  const [otp, setOtp] = useState("123456");
-  const [pin, setPin] = useState("12345");
   const [agreeTerms, setAgreeTerms] = useState(true);
-  const [trxId, setTrxId] = useState("");
-  const [activePaymentId, setActivePaymentId] = useState<string | null>(null);
-  const [bkashUrl, setBkashUrl] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const initiateMutation = useInitiateBkashMutation();
-  const executeMutation = useExecuteBkashMutation();
 
   if (!isOpen) return null;
 
-  const handleWalletSubmit = (e: React.FormEvent) => {
+  const activeOrgId = selectedOrgId || organizations[0]?.id || "";
+  const selectedOrg =
+    organizations.find((o) => o.id === activeOrgId) || organizations[0];
+
+  const handleProceedToBkash = (e: React.FormEvent) => {
     e.preventDefault();
-    const targetOrgId = selectedOrgId || organizations[0]?.id;
-    if (!targetOrgId || !walletNumber) return;
+    if (!activeOrgId || !agreeTerms) return;
 
     initiateMutation.mutate(
       {
-        organizationId: targetOrgId,
+        organizationId: activeOrgId,
         amount: Number(amount),
       },
       {
         onSuccess: (res: any) => {
-          const pId =
-            res?.data?.paymentID ||
-            res?.data?.transactionId ||
-            res?.data?.id ||
-            null;
-          if (pId) {
-            setActivePaymentId(pId);
+          const redirectUrl = res?.data?.bkashURL;
+          if (redirectUrl) {
+            toast.success("Redirecting to Official bKash Gateway... 🚀");
+            window.location.href = redirectUrl;
+          } else {
+            toast.error("bKash redirect URL was not returned by gateway.");
           }
-          if (res?.data?.bkashURL) {
-            setBkashUrl(res.data.bkashURL);
-          }
-          setStep("otp");
         },
-        onError: () => {
-          setActivePaymentId(null);
-          setStep("otp");
+        onError: (err: any) => {
+          toast.error(
+            err?.data?.message ||
+              err?.message ||
+              "Failed to initiate bKash payment",
+          );
         },
       },
     );
   };
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp) return;
-    setStep("pin");
-  };
-
-  const handlePinSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!pin) return;
-
-    setIsProcessing(true);
-    const fallbackTrx = `TRX${Math.floor(100000000 + Math.random() * 900000000)}`;
-
-    let hasHandled = false;
-    const finalizePayment = (tx: string) => {
-      if (hasHandled) return;
-      hasHandled = true;
-      setTrxId(tx);
-      setStep("success");
-      setIsProcessing(false);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("active_subscription_plan", planName);
-        const targetOrgId = selectedOrgId || organizations[0]?.id;
-        if (targetOrgId) {
-          localStorage.setItem(`org_plan_${targetOrgId}`, planName);
-        }
-      }
-      toast.success("Payment completed successfully! 🎉");
-    };
-
-    // Responsive guard: if live bKash PGW network call takes > 3 seconds, complete the demo verification
-    const safetyTimer = setTimeout(() => {
-      finalizePayment(activePaymentId || fallbackTrx);
-    }, 3000);
-
-    if (activePaymentId) {
-      executeMutation.mutate(activePaymentId, {
-        onSuccess: (res: any) => {
-          clearTimeout(safetyTimer);
-          const finalTrx =
-            res?.data?.transactionId ||
-            res?.data?.paymentID ||
-            activePaymentId ||
-            fallbackTrx;
-          finalizePayment(finalTrx);
-        },
-        onError: () => {
-          clearTimeout(safetyTimer);
-          finalizePayment(activePaymentId || fallbackTrx);
-        },
-      });
-    } else {
-      clearTimeout(safetyTimer);
-      finalizePayment(fallbackTrx);
-    }
-  };
-
-  const handleResetAndClose = () => {
-    setStep("wallet");
-    setActivePaymentId(null);
-    setBkashUrl(null);
-    setIsProcessing(false);
-    onClose();
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div
-        className="fixed inset-0"
-        onClick={handleResetAndClose}
-        aria-hidden="true"
-      />
+      <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
       <div className="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        {/* bKash Header */}
         <div className="bg-[#E2136E] text-white p-5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="bg-white text-[#E2136E] font-black text-sm px-2 py-0.5 rounded-md tracking-tighter">
+              <div className="bg-white text-[#E2136E] font-black text-sm px-2.5 py-0.5 rounded-md tracking-tighter shadow-xs">
                 bKash
               </div>
               <span className="text-xs font-bold tracking-wide">
-                Payment Gateway
+                Tokenized Payment Gateway
               </span>
             </div>
             <button
-              onClick={handleResetAndClose}
+              onClick={onClose}
               className="text-white/80 hover:text-white rounded-lg p-1 transition-colors"
             >
               <X className="size-5" />
@@ -225,25 +139,26 @@ export function BkashCheckoutModal({
                   to upgrade with the {planName} plan.
                 </p>
               </div>
-              <Link href="/login" onClick={handleResetAndClose}>
+              <Link href="/login" onClick={onClose}>
                 <Button className="w-full rounded-xl text-xs font-semibold gap-1.5 shadow-sm">
                   <span>Sign In to Continue</span>
                   <ArrowRight className="size-3.5" />
                 </Button>
               </Link>
             </div>
-          ) : step === "wallet" ? (
-            /* Step 1: Wallet Number & Organization */
-            <form onSubmit={handleWalletSubmit} className="space-y-4">
+          ) : (
+            <form onSubmit={handleProceedToBkash} className="space-y-4">
+              {/* Workspace Selection */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">
+                <Label className="text-xs font-semibold flex items-center gap-1.5">
+                  <Building2 className="size-3.5 text-primary" />
                   Select Workspace to Upgrade
                 </Label>
                 {organizations.length > 0 ? (
                   <select
-                    value={selectedOrgId}
+                    value={activeOrgId}
                     onChange={(e) => setSelectedOrgId(e.target.value)}
-                    className="w-full h-9 px-3 rounded-xl border border-border bg-background text-xs text-foreground outline-none focus:border-[#E2136E]"
+                    className="w-full h-10 px-3 rounded-xl border border-border bg-background text-xs text-foreground outline-none focus:border-[#E2136E] transition-colors"
                     required
                   >
                     {organizations.map((org) => (
@@ -259,245 +174,102 @@ export function BkashCheckoutModal({
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">
-                  Your bKash Account Number
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="e.g. 01XXXXXXXXX"
-                    value={walletNumber}
-                    onChange={(e) => setWalletNumber(e.target.value)}
-                    className="pl-9 h-9 text-xs rounded-xl font-mono"
-                    required
-                  />
+              {/* Order Summary Card */}
+              <div className="p-3.5 rounded-2xl border border-border/70 bg-muted/20 space-y-2 text-xs">
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Selected Plan:</span>
+                  <span className="font-bold text-foreground">{planName}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">
-                  Demo Sandbox test wallet pre-filled.
-                </span>
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Workspace:</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {selectedOrg ? `${selectedOrg.name}` : "Workspace"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-border/40 text-foreground font-bold">
+                  <span>Payable Total:</span>
+                  <span className="text-sm font-black text-[#E2136E]">
+                    ৳{amount.toLocaleString()} BDT
+                  </span>
+                </div>
               </div>
 
+              {/* Official Gateway Sandbox Notice */}
+              <div className="p-3 rounded-2xl bg-[#E2136E]/10 border border-[#E2136E]/20 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#E2136E]">
+                  <ShieldCheck className="size-4" />
+                  <span>Official bKash Gateway PGW</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Clicking below will securely redirect you to bKash&apos;s
+                  official checkout page (sandbox.payment.bka.sh) to authorize
+                  this transaction.
+                </p>
+                <div className="pt-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-mono bg-background/60 p-2 rounded-xl border border-border/50">
+                  <p className="font-bold text-foreground">
+                    Sandbox Test Credentials:
+                  </p>
+                  <p>
+                    Wallet: <span className="font-bold">01770618575</span> | OTP:{" "}
+                    <span className="font-bold">123456</span> | PIN:{" "}
+                    <span className="font-bold">12121</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Terms Checkbox */}
               <div className="flex items-center gap-2 pt-1 text-xs text-muted-foreground">
                 <input
                   type="checkbox"
-                  id="agree"
+                  id="agreeTerms"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="rounded text-[#E2136E]"
+                  className="rounded text-[#E2136E] focus:ring-[#E2136E]"
                 />
-                <label htmlFor="agree" className="text-[11px] cursor-pointer">
+                <label
+                  htmlFor="agreeTerms"
+                  className="text-[11px] cursor-pointer"
+                >
                   I agree to the bKash Merchant terms & conditions.
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/50">
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border/50">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={handleResetAndClose}
+                  onClick={onClose}
+                  disabled={initiateMutation.isPending}
                   className="rounded-xl text-xs"
                 >
-                  Close
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
                   size="sm"
                   disabled={
-                    !walletNumber ||
                     !agreeTerms ||
                     organizations.length === 0 ||
                     initiateMutation.isPending
                   }
-                  className="bg-[#E2136E] hover:bg-[#c0105d] text-white rounded-xl text-xs font-semibold px-5 shadow-sm min-w-24"
+                  className="bg-[#E2136E] hover:bg-[#c0105d] text-white rounded-xl text-xs font-semibold px-5 shadow-sm min-w-44"
                 >
                   {initiateMutation.isPending ? (
                     <span className="flex items-center gap-1.5">
                       <Loader2 className="size-3.5 animate-spin" />
-                      <span>Initiating...</span>
+                      <span>Redirecting to bKash...</span>
                     </span>
                   ) : (
-                    <span>Proceed</span>
-                  )}
-                </Button>
-              </div>
-            </form>
-          ) : step === "otp" ? (
-            <form onSubmit={handleOtpSubmit} className="space-y-4">
-              <div className="text-center space-y-1">
-                <p className="text-xs font-bold text-foreground">
-                  Verification Code Sent
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  A 6-digit OTP code has been dispatched to {walletNumber}.
-                </p>
-              </div>
-
-              <div className="space-y-1.5 text-center">
-                <Label className="text-xs font-semibold">
-                  Enter 6-Digit OTP
-                </Label>
-                <Input
-                  type="text"
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="h-10 text-center font-mono text-base tracking-widest rounded-xl"
-                  required
-                />
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
-                  Sandbox Test OTP: 123456
-                </span>
-                {bkashUrl && (
-                  <div className="pt-2 p-3 rounded-2xl bg-[#E2136E]/10 border border-[#E2136E]/20 space-y-1.5 text-center">
-                    <p className="text-[11px] text-[#E2136E] font-bold">
-                      Official bKash PGW Redirect
-                    </p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">
-                      To settle the transaction officially as SUCCESS in the audit database, open the bKash hosted sandbox portal:
-                    </p>
-                    <a
-                      href={bkashUrl}
-                      className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-[#E2136E] text-white text-xs font-bold hover:bg-[#c0105d] transition-all shadow-xs"
-                    >
-                      <span>Open Official bKash Gateway</span>
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/50">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setStep("wallet")}
-                  className="rounded-xl text-xs"
-                >
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={otp.length < 4}
-                  className="bg-[#E2136E] hover:bg-[#c0105d] text-white rounded-xl text-xs font-semibold px-5 shadow-sm"
-                >
-                  Confirm OTP
-                </Button>
-              </div>
-            </form>
-          ) : step === "pin" ? (
-            <form onSubmit={handlePinSubmit} className="space-y-4">
-              <div className="text-center space-y-1">
-                <p className="text-xs font-bold text-foreground">
-                  Security PIN Authorization
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Enter your secret 5-digit bKash PIN to confirm ৳{amount}{" "}
-                  payment.
-                </p>
-              </div>
-
-              <div className="space-y-1.5 text-center">
-                <Label className="text-xs font-semibold">
-                  bKash Account PIN
-                </Label>
-                <Input
-                  type="password"
-                  maxLength={5}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  className="h-10 text-center font-mono text-base tracking-widest rounded-xl"
-                  required
-                />
-                <span className="text-[10px] text-muted-foreground">
-                  Sandbox PIN: 12345 (Encrypted via TLS 1.3)
-                </span>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/50">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setStep("otp")}
-                  className="rounded-xl text-xs"
-                >
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={
-                    pin.length < 4 || isProcessing || executeMutation.isPending
-                  }
-                  className="bg-[#E2136E] hover:bg-[#c0105d] text-white rounded-xl text-xs font-semibold px-5 shadow-sm min-w-36"
-                >
-                  {isProcessing || executeMutation.isPending ? (
                     <span className="flex items-center gap-1.5">
-                      <Loader2 className="size-3.5 animate-spin" />
-                      <span>Verifying PIN...</span>
+                      <span>Pay ৳{amount.toLocaleString()} with bKash</span>
+                      <ExternalLink className="size-3.5" />
                     </span>
-                  ) : (
-                    <span>Confirm Payment</span>
                   )}
                 </Button>
               </div>
             </form>
-          ) : (
-            <div className="text-center py-4 space-y-4 animate-in zoom-in-90 duration-300">
-              <div className="size-14 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-500/30">
-                <CheckCircle2 className="size-8" />
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="text-lg font-black font-heading text-foreground">
-                  Payment Successful! 🎉
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  Your workspace has been upgraded to the{" "}
-                  <strong>{planName}</strong> plan.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-2xl bg-muted/30 border border-border/60 text-xs text-left space-y-1.5 font-mono">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">TrxID:</span>
-                  <span className="font-bold text-foreground">{trxId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Amount:</span>
-                  <span className="font-bold text-foreground">
-                    ৳{amount} BDT
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Provider:</span>
-                  <span className="font-bold text-[#E2136E]">
-                    bKash MFS PGW
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <Link
-                  href={
-                    user?.role === "MANAGER" || user?.role === "ADMIN"
-                      ? "/manager"
-                      : "/dashboard"
-                  }
-                  onClick={handleResetAndClose}
-                >
-                  <Button className="w-full rounded-xl text-xs font-semibold gap-1.5 shadow-sm">
-                    <span>Enter Upgraded Workspace</span>
-                    <ArrowRight className="size-3.5" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
           )}
         </div>
       </div>
