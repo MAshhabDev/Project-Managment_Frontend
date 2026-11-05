@@ -40,7 +40,12 @@ export default function PricingPage() {
   const primaryOrgId = organizations[0]?.id || "";
 
   const { data: paymentsData } = useOrganizationPaymentsQuery(primaryOrgId);
-  const payments: IPayment[] = (paymentsData?.data as IPayment[]) || [];
+  const rawPayments = paymentsData?.data;
+  const payments: IPayment[] = Array.isArray(rawPayments)
+    ? rawPayments
+    : Array.isArray((rawPayments as any)?.data)
+      ? (rawPayments as any).data
+      : [];
 
   const [localSubscribedPlan, setLocalSubscribedPlan] = useState<string | null>(
     null,
@@ -53,13 +58,27 @@ export default function PricingPage() {
     }
   }, []);
 
-  const hasSuccessfulPayment = payments.some(
-    (p) => p.status === PaymentStatus.SUCCESS,
+  const proPayment = payments.find(
+    (p) =>
+      p.amount === 1500 &&
+      (p.status === PaymentStatus.SUCCESS || p.status === PaymentStatus.PENDING),
   );
+  const enterprisePayment = payments.find(
+    (p) =>
+      p.amount === 4500 &&
+      (p.status === PaymentStatus.SUCCESS || p.status === PaymentStatus.PENDING),
+  );
+
+  const detectedPlan = enterprisePayment
+    ? "Enterprise"
+    : proPayment
+      ? "Professional"
+      : null;
 
   const activePlanName =
     localSubscribedPlan ||
-    (hasSuccessfulPayment ? "Professional" : user ? "Starter" : null);
+    detectedPlan ||
+    (user ? "Starter" : null);
 
   const plans = [
     {
