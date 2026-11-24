@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Role } from "@/types";
 import { adminRoutes, managerRoutes, memberRoutes } from "@/routes";
-import { KanbanSquare, Sparkles, Globe, CreditCard } from "lucide-react";
+import { KanbanSquare, Sparkles, CreditCard } from "lucide-react";
 
 interface IDashboardSidebarProps {
   role: Role;
@@ -100,14 +100,6 @@ export function DashboardSidebar({
 
         {/* Bottom Actions */}
         <div className="p-4 border-t border-border/70 space-y-2.5">
-          <Link
-            href="/"
-            onClick={onClose}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border border-border/80 bg-background/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
-          >
-            <Globe className="size-3.5 text-primary" />
-            <span>Go to Home Page</span>
-          </Link>
 
           {/* Upgrade Plan link widget */}
           <Link

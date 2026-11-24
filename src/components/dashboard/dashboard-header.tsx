@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { IUser, Role } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Menu, Sun, Moon, LogOut, User, Globe, CreditCard } from "lucide-react";
+import { Menu, Sun, Moon, LogOut, User, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 
 interface IDashboardHeaderProps {
@@ -64,15 +64,6 @@ export function DashboardHeader({ user, onMenuToggle }: IDashboardHeaderProps) {
           <span className="hidden sm:inline">Upgrade Plan</span>
         </Link>
 
-        {/* Back to Home Page link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/80 bg-background/80 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all shadow-xs"
-          title="Go back to Home Page"
-        >
-          <Globe className="size-3.5 text-primary" />
-          <span className="hidden sm:inline">Home Page</span>
-        </Link>
 
         {/* Dark/Light mode theme toggle */}
         <Button
