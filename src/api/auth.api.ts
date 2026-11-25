@@ -31,6 +31,17 @@ export function verifyEmailOtp(payload: IVerifyEmailPayload) {
 }
 
 export async function getMe(): Promise<ApiResponse<IUser | null>> {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      return {
+        statusCode: 200,
+        success: true,
+        message: "Unauthenticated guest",
+        data: null,
+      };
+    }
+  }
   try {
     return await apiClient<ApiResponse<IUser>>("/auth/me");
   } catch {

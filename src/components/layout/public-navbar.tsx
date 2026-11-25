@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { useGetMe } from "@/hooks";
 import { Role } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -10,12 +11,23 @@ import {
   Menu,
   X,
   ArrowRight,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 export function PublicNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
   const { data: userData } = useGetMe();
-  const user = userData?.data;
+  const [hasToken, setHasToken] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHasToken(!!localStorage.getItem("accessToken"));
+    }
+  }, []);
+
+  const user = hasToken ? userData?.data : null;
 
   const getDashboardRoute = () => {
     if (!user) return "/dashboard";
@@ -27,7 +39,7 @@ export function PublicNavbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-md transition-all">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand Logo - Clean TaskFlow without SaaS pill */}
+        {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="size-9 rounded-xl bg-gradient-to-tr from-primary to-primary/60 text-primary-foreground flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
             <KanbanSquare className="size-5" />
@@ -50,8 +62,20 @@ export function PublicNavbar() {
           </Link>
         </nav>
 
-        {/* Right CTA Actions */}
+        {/* Right CTA Actions & Dark/Light Theme Toggle */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Theme Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="size-9 p-0 rounded-xl border-border/80 bg-background/80 hover:bg-muted transition-all"
+            title="Toggle dark / light mode"
+          >
+            <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-foreground" />
+            <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-foreground" />
+          </Button>
+
           {user ? (
             <Link href={getDashboardRoute()}>
               <Button size="sm" className="rounded-xl text-xs gap-1.5 shadow-sm">
@@ -76,14 +100,27 @@ export function PublicNavbar() {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden rounded-xl p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        {/* Mobile Actions: Theme Toggle + Menu Button */}
+        <div className="flex md:hidden items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="size-9 p-0 rounded-xl border-border/80 bg-background/80"
+            title="Toggle dark / light mode"
+          >
+            <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-foreground" />
+            <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-foreground" />
+          </Button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="rounded-xl p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Dropdown Drawer */}

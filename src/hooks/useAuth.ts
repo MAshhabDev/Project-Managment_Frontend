@@ -130,3 +130,33 @@ export function useResetPasswordMutation() {
     },
   });
 }
+
+export function useLogout() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("active_subscription_plan");
+    }
+
+    document.cookie =
+      "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0;";
+    document.cookie =
+      "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0;";
+
+    queryClient.setQueryData(["auth", "me"], {
+      statusCode: 200,
+      success: true,
+      message: "Unauthenticated guest",
+      data: null,
+    });
+    queryClient.removeQueries({ queryKey: ["auth"] });
+    queryClient.clear();
+
+    toast.success("Logged out successfully");
+    router.replace("/login");
+  };
+}

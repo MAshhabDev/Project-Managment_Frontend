@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { IUser, Role } from "@/types";
+import { useLogout } from "@/hooks";
 import { Button } from "@/components/ui/button";
 import { Menu, Sun, Moon, LogOut, User, CreditCard } from "lucide-react";
 import { toast } from "sonner";
@@ -17,17 +18,9 @@ export function DashboardHeader({ user, onMenuToggle }: IDashboardHeaderProps) {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
 
+  const logout = useLogout();
   const handleLogout = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-    }
-    document.cookie =
-      "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    document.cookie =
-      "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    toast.success("Logged out successfully");
-    router.push("/login");
+    logout();
   };
 
   const roleBadgeColor =
