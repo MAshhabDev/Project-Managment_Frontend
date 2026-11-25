@@ -12,7 +12,7 @@ An enterprise-grade, multi-tenant Agile Project Management SaaS built for **Assi
 
 ## 🌐 Live Deployment & Backend API
 
-- **Frontend App:** Local (`http://localhost:3000`) / Vercel Production
+- **Frontend App (Live):** [`https://project-managementv1.vercel.app`](https://project-managementv1.vercel.app)
 - **Live Deployed API:** [`https://project-management-delta-blush.vercel.app/api/v1`](https://project-management-delta-blush.vercel.app/api/v1)
 - **API Status:** Live & Verified 🟢 (CORS configured with credential cookie support)
 
